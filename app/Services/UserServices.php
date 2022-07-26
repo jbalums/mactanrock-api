@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Enums\UserType;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserServices
 {
@@ -48,11 +50,19 @@ class UserServices
         return $user;
     }
 
-    public function changePassword(string $password, int $id):User
+    /**
+     * @throws ValidationException
+     */
+    public function changePassword(string $password, User $user):void
     {
-        $user = User::query()->findOrfail($id);
+        if(!Hash::check($password,$user->password))
+            throw  ValidationException::withMessages([
+                'old_password' => 'Invalid old password'
+            ]);
+
         $user->password = bcrypt($password);
-        $user->save();
-        return $user;
+
+       $user->save();
+
     }
 }
