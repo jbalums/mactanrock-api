@@ -22,6 +22,7 @@ return new class extends Migration
             $table->double('price', 10, 2)->default(0);
             $table->bigInteger('total_amount')->default(0);
             $table->bigInteger('total_remaining')->default(0);
+            $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('branch_id')->constrained()->nullOnDelete();
             $table->timestamps();
         });

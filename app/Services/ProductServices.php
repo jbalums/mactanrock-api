@@ -14,6 +14,7 @@ class ProductServices
         $product = new Product();
         $product->name = $request->get('name');
         $product->description = $request->get('description');
+        $product->category_id = $request->get('category_id');
         $product->unit_measurement = $request->get('unit_measurement');
         $product->unit_value = $request->get('unit_value');
         $product->price = $request->get('price');
