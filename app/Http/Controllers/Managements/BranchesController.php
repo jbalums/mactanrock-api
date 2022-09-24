@@ -19,14 +19,14 @@ class BranchesController extends \App\Http\Controllers\Controller
     public function store(BranchRequest $request)
     {
         return BranchResource::make(
-            Branch::query()->create($request->validate())
+            Branch::query()->create($request->validated())
         );
     }
 
     public function update(BranchRequest $request, int $id)
     {
         $branch = Branch::query()->findOrFail($id);
-        $branch->fill($request->validate());
+        $branch->fill($request->validated());
         $branch->save();
         return BranchResource::make($branch);
     }

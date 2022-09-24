@@ -21,6 +21,10 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function (){
     require  __DIR__.'/management.php';
+
+    Route::prefix('inventory')->group( function (){
+       require __DIR__.'/inventory/receiving.php';
+    });
 });
 
 

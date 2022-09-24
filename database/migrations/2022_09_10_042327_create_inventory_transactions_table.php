@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('amount');
+            $table->bigInteger('quantity')->default(0);
             $table->foreignId('branch_id');
             $table->foreignId('transacted_by_id');
             $table->foreignId('accepted_by_id');
@@ -26,6 +26,7 @@ return new class extends Migration
             $table->foreignId('from_branch_id')->nullable();
             $table->foreignId('from_supplier_id')->nullable();
             $table->foreignId('from_request_id')->nullable();
+            $table->foreignId('receive_id')->nullable();
             $table->text('details');
             $table->string('action')->default('auto');
             $table->foreignId('inventory_id')->constrained()->cascadeOnDelete();

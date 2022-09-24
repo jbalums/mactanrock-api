@@ -11,17 +11,18 @@ use App\Models\Product;
 class InventoryServices
 {
 
-    public function in(int|Product $product, int $amount, array $data = [])
+    public function in(int|Product $product, int $quantity, array $data = [])
     {
         $product = $this->resolveProduct($product);
-        $product->total_amount = $product->total_amount + $amount;
-        $product->total_remaining = $product->total_remaining + $amount;
+        $product->total_quantity = $product->total_quantity + $quantity;
+        $product->quantity = $product->quantity + $quantity;
+        $product->price = $data['price'];
         $product->save();
 
         $inventory = new Inventory();
         $inventory->product_id = $product->id;
-        $inventory->amount = $amount;
-        $inventory->$data['from'] = $data['from_value'];
+        $inventory->quantity = $quantity;
+        $inventory->receive_id = $data['receive_id'] ?? null;
         $inventory->from_request_id = $data['from_request_id'] ?? null;
         $inventory->description = $data['description'] ?? null;
         $inventory->expired_at = $data['expired_at'] ?? null;
@@ -31,14 +32,15 @@ class InventoryServices
         $inventory->save();
 
         $this->transaction($inventory->id,[
-            'amount' => $amount,
+            'quantity' => $quantity,
             'branch_id' => $product->branch_id,
             'transacted_by_id' => $data['user_id'],
             'accepted_by_id' => $data['user_id'],
             'to_branch_id' => $product->branch_id,
             'movement' => InventoryMovementType::In,
             'action' => $inventory->action,
-            'details' => $data['description']
+            'details' => $data['description'] ?? null,
+            'receive_id' => $data['receive_id'] ?? null,
         ]);
 
         return $product;
@@ -99,7 +101,7 @@ class InventoryServices
     private function transaction(int $inventory_id, array $data)
     {
         $transaction = new InventoryTransaction();
-        $transaction->amount = $data['amount'];
+        $transaction->quantity = $data['quantity'];
         $transaction->branch_id = $data['branch_id'];
         $transaction->transacted_by_id = $data['transacted_by_id'];
         $transaction->accepted_by_id = $data['accepted_by_id'];
@@ -109,7 +111,8 @@ class InventoryServices
         $transaction->from_branch_id = $data['from_branch_id'] ?? null;
         $transaction->from_supplier_id = $data['from_supplier_id'] ?? null;
         $transaction->from_request_id= $data['from_request_id'] ?? null;
-        $transaction->details = $data['details'];
+        $transaction->receive_id= $data['receive_id'] ?? null;
+        $transaction->details = $data['details'] ?? '';
         $transaction->action = $data['action'];
         $transaction->movement = $data['movement'];
         $transaction->inventory_id = $inventory_id;

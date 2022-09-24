@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('amount');
+            $table->unsignedBigInteger('quantity');
             $table->double('price', 10, 2)->default(0);
             $table->bigInteger('batch')->default(1);
             $table->date('expired_at')->nullable();
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('from_branch_id')->nullable();
             $table->foreignId('from_supplier_id')->nullable();
             $table->foreignId('from_request_id')->nullable();
+            $table->foreignId('receive_id')->nullable();
             $table->foreignId('product_id')->constrained();
             $table->timestamps();
         });
