@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SupplierRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class SupplierRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,8 @@ class SupplierRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => ['required','string','max:225', Rule::unique('branches')->ignore($this->id)],
+            'address' => ['required','string','max:225']
         ];
     }
 }
