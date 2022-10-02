@@ -12,6 +12,7 @@ class ProductServices
     {
 
         return Product::query()
+            ->when(request('location_id'), fn($query) => $query->where('branch_id',request('location_id') ) )
             ->latest()
             ->paginate( is_integer(request('paginate',12)) ?request('paginate'):0 );
     }
