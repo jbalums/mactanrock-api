@@ -15,7 +15,8 @@ class ReceivingService
         return Receive::query()->with([
                 'details' => [
                     'product'
-                ]
+                ],
+                'supplier'
             ])
             ->when(!is_null($branch_id), fn($q) => $q->where('branch_id', $branch_id))
             ->latest()
