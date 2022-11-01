@@ -29,6 +29,7 @@ class ReceivingService
         $receiving->supplier_id = $request->get('supplier_id');
         $receiving->project_name = $request->get('project_name');
         $receiving->branch_id = $request->get('branch_id',1);
+        $receiving->date_receive = $request->get('date_receive');
         $receiving->status = $request->get('status',ReceivingStatus::Pending);
         $receiving->save();
 

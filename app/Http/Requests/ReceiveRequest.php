@@ -36,7 +36,8 @@ class ReceiveRequest extends FormRequest
             'quantity' => ['required','array'],
             'quantity.*' => ['required','integer','min:1'],
             'expired_at' => ['nullable','array'],
-            'expired_at.*' => ['nullable','date','after:tomorrow']
+            'expired_at.*' => ['nullable','date','after:tomorrow'],
+            'date_receive' => ['required', 'date','before:tomorrow']
         ];
     }
 }

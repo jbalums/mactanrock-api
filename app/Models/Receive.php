@@ -14,6 +14,8 @@ class Receive extends Model
         'status' => ReceivingStatus::class
     ];
 
+    protected $dates = ['date_receive'];
+
 
     public function supplier(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
