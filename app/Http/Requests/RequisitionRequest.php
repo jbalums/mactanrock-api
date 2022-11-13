@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RequisitionRequest extends FormRequest
 {
@@ -24,9 +25,14 @@ class RequisitionRequest extends FormRequest
     public function rules()
     {
         return [
-            'project_name' => ['required','string','max:255'],
-            'products' => ['required','array'],
+            'project_code' => ['required','string','max:255'],
+            'inventory_id' => ['required','array'],
+            'inventory_id.*' => ['required',
+                Rule::exists('inventory_locations','id')/*->where(fn($q) => $q->where('branch_id','!=',$this->user()->branch_id))*/
+            ],
             'quantity' => ['required','array'],
+            'quantity.*' => ['required','integer', 'min:1'],
+            'date_needed' => ['required','date' ,'after:yesterday']
         ];
     }
 }

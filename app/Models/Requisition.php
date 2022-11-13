@@ -19,4 +19,9 @@ class Requisition extends Model
     {
         return $this->belongsTo(User::class,'user_id');
     }
+
+    public function location()
+    {
+        return $this->belongsTo(Branch::class , 'branch_id');
+    }
 }

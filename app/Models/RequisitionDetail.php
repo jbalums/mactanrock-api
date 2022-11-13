@@ -12,8 +12,18 @@ class RequisitionDetail extends Model
     protected $guarded = [];
 
 
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function items(): \Illuminate\Database\Eloquent\Relations\hasMany
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(RequisitionItem::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Branch::class,'location_id');
+    }
+
+    public function requisition()
+    {
+        return $this->belongsTo(Requisition::class);
     }
 }

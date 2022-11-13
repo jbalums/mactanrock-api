@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('requisition_details', function (Blueprint $table) {
+        Schema::create('requisition_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('from_branch_id');
-            $table->foreignId('requisition_id')->constrained()->cascadeOnDelete();
-            $table->string('status')->default('pending');
+            $table->foreignId('requisition_detail_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('request_quantity');
+            $table->unsignedInteger('full_filled_quantity');
+            $table->foreignId('product_id');
+            $table->string('status')->default('incomplete');
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('requisition_details');
+        Schema::dropIfExists('requisition_items');
     }
 };

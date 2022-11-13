@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\InventoryLocation;
 use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionDetail;
+use App\Models\RequisitionItem;
 
 class RequisitionServices
 {
@@ -18,11 +20,40 @@ class RequisitionServices
             ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
     }
 
+    public function requestList()
+    {
+        return RequisitionDetail::query()
+            ->with(['requisition' => [
+                'location',
+                'requester'
+            ]])
+            ->where('location_id', request()->user()->branch_id)
+            ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
+    }
+
+    public function showRequest(int $id)
+    {
+        return RequisitionDetail::query()
+            ->with(['requisition' => [
+                'location',
+                'requester',
+            ],
+                'items' => [
+                    'product'
+                ]
+            ])
+            ->where('location_id', request()->user()->branch_id)
+            ->findOrFail($id);
+    }
+
     public function show(int $id)
     {
         return Requisition::query()->with([
             'details' => [
-                'product'
+                'location',
+                'items' => [
+                    'product'
+                ]
             ],
             'requester'
         ])->where('branch_id', request()->user()->branch_id)->findOrFail($id);
@@ -31,25 +62,51 @@ class RequisitionServices
     {
         $user = request()->user();
         $requisition = new Requisition();
-        $requisition->project_name = request()->get('project_name');
+        $requisition->project_code = request()->get('project_code');
         $requisition->branch_id = $user->branch_id;
+        $requisition->needed_at = request()->get('date_needed');
         $requisition->user_id = $user->id;
         $requisition->save();
 
-        $items = [];
 
-        $products = Product::query()->whereIn('id', request('products'))->get();
+        $products = InventoryLocation::query()->whereIn('id', request('inventory_id'))->get();
 
-        foreach (request('products') as $key => $product){
-            $items[] = [
-                'product_id' => $product,
-                'quantity' => request()->get('quantity')[$key],
-                'from_branch_id' => $products->firstWhere('id', $product)->branch_id,
-                'requisition_id' => $requisition->id
-            ];
+        $groupByLocations = $products->groupBy('branch_id')->all();
+
+        $qtyResolver = [];
+
+
+        foreach (request('inventory_id') as $key => $product){
+            $qtyResolver[$product] = request()->get('quantity')[$key] ?? 0;
         }
 
-        RequisitionDetail::query()->insert($items);
+        foreach ($groupByLocations as $key => $data){
+            $info = new RequisitionDetail();
+            $info->location_id = $key;
+            $info->requisition_id = $requisition->id;
+            $info->save();
+            $items = [];
+            foreach ($data as $item) {
+                $qty = $qtyResolver[$item->id] ?? 0;
+                if($qty > 0){
+                    $items[] = [
+                        'requisition_detail_id' => $info->id,
+                        'request_quantity' => $qty,
+                        'full_filled_quantity' => 0,
+                        'product_id' => $item->product_id,
+                        'status' => 'incomplete'
+                    ];
+
+                    RequisitionItem::query()->insert($items);
+                }
+
+            }
+
+
+        }
+
+
+
 
         return $requisition;
     }

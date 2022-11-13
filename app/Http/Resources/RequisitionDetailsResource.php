@@ -16,15 +16,10 @@ class RequisitionDetailsResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'product' => ProductResource::make($this->whenLoaded('product')),
-            'location' => BranchResource::make($this->whenLoaded('branch')),
-            'quantity' => $this->quantity,
+            'location' => BranchResource::make($this->whenLoaded('location')),
             'status' => $this->status,
-            'price' => $this->price,
-            'price_formatted' => number_format($this->price, 2, '.', ','),
-            $this->mergeWhen($this->relationLoaded('product'), fn() => [
-                'stock' => $this->quantity ? ($this->quantity <= $this->product->reorder_point ? "reorder" : ($this->quantity <= $this->product->stock_low_level ? "low" : "")):"out",
-            ])
+            'items' => RequestItemResource::collection($this->whenLoaded('items')),
+            'requisition' => RequisitionResource::make($this->whenLoaded('requisition')),
         ];
     }
 }

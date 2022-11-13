@@ -13,12 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('requisition_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('from_branch_id');
-            $table->foreignId('requisition_id')->constrained()->cascadeOnDelete();
-            $table->string('status')->default('pending');
-            $table->timestamps();
+        Schema::table('requisitions', function (Blueprint $table) {
+            $table->date('needed_at')->nullable();
         });
     }
 
@@ -29,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('requisition_details');
+        Schema::table('requisitions', function (Blueprint $table) {
+            $table->date('needed_at')->nullable();
+        });
     }
 };
