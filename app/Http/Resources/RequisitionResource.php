@@ -20,6 +20,8 @@ class RequisitionResource extends JsonResource
             'requester' => UserResource::make($this->whenLoaded('requester')),
             'details' => RequisitionDetailsResource::collection($this->whenLoaded('details')),
             'location' => BranchResource::make($this->whenLoaded('location')),
+            'created_at' => $this->created_at->format('M d, Y'),
+            'date_needed' => $this->date_needed->format('M d, Y'),
         ];
     }
 }

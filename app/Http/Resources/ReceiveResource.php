@@ -21,8 +21,8 @@ class ReceiveResource extends JsonResource
             'branch' => BranchResource::make($this->whenLoaded('branch')),
             'details' => ReceiveDetailResource::collection($this->whenLoaded('details')),
             'supplier' => SupplierResource::make($this->whenLoaded('supplier')),
-            'created_at' => $this->created_at->format('F d, Y'),
-            'date_receive' => $this->date_receive?->format('F d, Y') ?? ""
+            'created_at' => $this->created_at->format('M d, Y'),
+            'date_receive' => $this->date_receive?->format('M d, Y') ?? ""
         ];
     }
 }

@@ -9,6 +9,8 @@ class Requisition extends Model
 {
     use HasFactory;
 
+    protected $dates = ['date_needed'];
+
 
     public function details(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
