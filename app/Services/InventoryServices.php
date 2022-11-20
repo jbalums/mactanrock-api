@@ -19,7 +19,7 @@ class InventoryServices
             ->with(['location'])
             ->join('products','inventory_locations.product_id','=','products.id')
             ->select(['inventory_locations.*','products.*', "products.id as productId"])
-            ->when( request('location_id'), fn(Builder $builder) => $builder->where('inventory_location_id',request('location_id') ))
+            ->when( request('location_id'), fn(Builder $builder) => $builder->where('branch_id',request('location_id') ))
             ->paginate( request('paginate') ?:12 );
     }
     public function in(int|Product $product, int $quantity, array $data = [])
