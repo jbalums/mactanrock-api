@@ -15,12 +15,37 @@ class InventoryServices
 
     public function getList()
     {
+
         return InventoryLocation::query()
             ->with(['location'])
             ->join('products','inventory_locations.product_id','=','products.id')
-            ->select(['inventory_locations.*','products.*', "products.id as productId"])
-            ->when( request('location_id'), fn(Builder $builder) => $builder->where('branch_id',request('location_id') ))
+            ->select(['inventory_locations.*','products.name',
+                'products.code','products.description','products.unit_measurement',
+                'products.unit_value','products.brand','products.category_id',
+                "products.id as productId"])
+            ->when( request('location_id'),
+                fn(Builder $builder) => $builder->where('branch_id',request('location_id') ))
+            ->when(request('by_unit'),
+                fn(Builder $builder) => $builder->where('business_unit', 'by_unit'))
+            ->when( request('keyword'),
+                function(Builder $q){
+                    $keyword = request('keyword');
+                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like '%{$keyword}%' ");
+                })
+            ->when( request('column') && request('direction'),
+                fn(Builder $builder) => $builder->orderBy(request('column'),request('direction')))
             ->paginate( request('paginate') ?:12 );
+    }
+
+    public function updateTriggers(int $id)
+    {
+        $inventory = InventoryLocation::query()->findOrFail($id);
+        $inventory->stock_low_level = request()->get('stock_level');
+        $inventory->reorder_point = request()->get('reorder_point');
+        $inventory->save();
+
+        return $inventory;
+
     }
     public function in(int|Product $product, int $quantity, array $data = [])
     {
@@ -69,7 +94,7 @@ class InventoryServices
     {
         $inventoryLocation = $this->resolveProduct($product);
         if($inventoryLocation->total_remaining > 0){
-            $stock = $this->getNonEmptyStock($product->id);
+            $stock = $this->getNonEmptyStock($inventoryLocation->id);
             if(!$stock)
                 return $product;
 
@@ -99,11 +124,11 @@ class InventoryServices
         return $product;
     }
 
-    public function getNonEmptyStock(int $product_id)
+    public function getNonEmptyStock(int $inventory_location_id)
     {
         return Inventory::query()
-            ->where('product_id', $product_id)
-            ->where('amount','>',0)
+            ->where('inventory_location_id', $inventory_location_id)
+            ->where('quantity','>',0)
             ->where('sellable',1)
             ->orderBy('batch','asc')
             ->first();
@@ -140,10 +165,12 @@ class InventoryServices
         }
 
         $user = request()->user();
+        $business_unit = $user->business_unit ?: request()->get('business_unit') ?: request()->header('business-unit') ?: null;
 
         return InventoryLocation::query()->firstOrCreate([
             'product_id' => $product->id,
-            'branch_id' => $user->branch_id
+            'branch_id' => $user->branch_id,
+            'business_unit' => $business_unit
         ]);
 
 

@@ -16,6 +16,8 @@ class UserResource extends JsonResource
     {
 
         return array_merge(parent::toArray($request),[
+            'business_unit' => getUnit($this->business_unit),
+            'unit_code' => $this->business_unit ?? "",
             'branch' => BranchResource::make($this->whenLoaded('branch'))
         ]);
     }
