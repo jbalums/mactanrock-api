@@ -26,11 +26,11 @@ class InventoryServices
             ->when( request('location_id'),
                 fn(Builder $builder) => $builder->where('branch_id',request('location_id') ))
             ->when(request('by_unit'),
-                fn(Builder $builder) => $builder->where('business_unit', 'by_unit'))
+                fn(Builder $builder) => $builder->where('business_unit', request('by_unit')))
             ->when( request('keyword'),
                 function(Builder $q){
                     $keyword = request('keyword');
-                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like '%{$keyword}%' ");
+                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like %?% ",[$keyword]);
                 })
             ->when( request('column') && request('direction'),
                 fn(Builder $builder) => $builder->orderBy(request('column'),request('direction')))

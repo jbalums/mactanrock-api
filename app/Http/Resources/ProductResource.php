@@ -36,7 +36,7 @@ class ProductResource extends JsonResource
                 'reorder_point' => $this->reorder_point ?: 0,
                 'business_unit' => getUnit($this->business_unit),
                 'unit_code' => $this->business_unit ?? "",
-                'stock' => $this->quantity ? ($this->quantity <= $this->reorder_point ? "reorder" : ($this->quantity <= $this->stock_low_level ? "low" : "")):"out",
+                'stocks' => $this->quantity ? ($this->quantity <= $this->reorder_point ? "reorder" : ($this->quantity <= $this->stock_low_level ? "low" : "")):"out",
             ])
         ];
     }
