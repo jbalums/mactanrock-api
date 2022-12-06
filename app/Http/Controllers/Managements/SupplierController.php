@@ -30,6 +30,12 @@ class SupplierController extends Controller
         return SupplierResource::make($supplierServices->update($request,$id));
     }
 
+    public function show(int $id)
+    {
+        $supplier = Supplier::query()->with(['contacts','banks'])->findOrFail($id);
+        return SupplierResource::make($supplier);
+    }
+
     public function destroy(int $id)
     {
         $supplier = Supplier::query()->findOrFail($id);

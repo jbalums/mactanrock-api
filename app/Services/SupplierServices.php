@@ -76,7 +76,6 @@ class SupplierServices
         $this->contacts($request, $supplier->id);
         $this->banks($request, $supplier->id);
 
-        $supplier->load(['banks', 'contacts']);
         return $supplier;
     }
 }
