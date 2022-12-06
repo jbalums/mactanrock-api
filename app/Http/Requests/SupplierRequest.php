@@ -34,7 +34,7 @@ class SupplierRequest extends FormRequest
             'contacts' => ['required','array'],
             'contacts.*.name' => ['required','string'],
             'contacts.*.number' => ['required','string'],
-            'contacts.*.email' => ['required','email'],
+            'contacts.*.email' => ['required','string','email','max:100'],
             'banks' => ['required','array'],
             'banks.*.name' => ['required','string'],
             'banks.*.account_name' => ['required','string'],

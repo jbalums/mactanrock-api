@@ -5,12 +5,17 @@ namespace App\Services;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProductServices
 {
 
     public function get()
     {
+        request()->validate([
+            'column' => ['nullable',Rule::in(['name','code','brand'])],
+            'direction' => ['nullable',Rule::in(['asc','desc'])],
+        ]);
 
         return Product::query()
             ->with(['category'])
@@ -19,6 +24,9 @@ class ProductServices
                     $keyword = request('keyword');
                     return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like '%{$keyword}%' ");
                 })
+            ->when( request()->get('column') && request()->get('direction'),
+                fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
+            )
             ->latest()
             ->paginate( is_integer(request('paginate',12)) ? request('paginate'):0 );
     }

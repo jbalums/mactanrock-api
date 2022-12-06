@@ -10,10 +10,10 @@ use App\Services\SupplierServices;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(SupplierServices $supplierServices)
     {
         return SupplierResource::collection(
-            Supplier::query()->latest()->get()
+           $supplierServices->getSuppliers()
         );
     }
 

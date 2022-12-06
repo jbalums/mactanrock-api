@@ -5,11 +5,32 @@ namespace App\Services;
 use App\Models\Supplier;
 use App\Models\SupplierBank;
 use App\Models\SupplierContact;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SupplierServices
 {
 
+    public function getSuppliers()
+    {
+        request()->validate([
+            'column' => ['nullable',Rule::in(['name','code'])],
+            'direction' => ['nullable',Rule::in(['asc','desc'])],
+        ]);
+
+        return Supplier::query()
+            ->when( request('keyword'),
+                function(Builder $q){
+                    $keyword = request('keyword');
+                    return $q->whereRaw("CONCAT_WS(' ',name,code) like '%{$keyword}%' ");
+                })
+            ->when( request()->get('column') && request()->get('direction'),
+                fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
+            )
+            ->latest()
+            ->paginate(is_integer(request('paginate',12)) ? request('paginate'):0 );
+    }
     public function create(Request $request)
     {
         $supplier = new Supplier();

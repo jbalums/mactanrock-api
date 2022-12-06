@@ -13,7 +13,7 @@ Route::prefix('management')->group( function (){
     Route::apiResource('users', UsersController::class);
     Route::apiResource('categories', CategoriesController::class);
     Route::apiResource('branches', BranchesController::class);
-    Route::apiResource('suppliers', SupplierController::class);
+    Route::apiResource('suppliers', SupplierController::class)->parameters(['suppliers' => 'id']);
     Route::apiResource('products', ProductsController::class);
     Route::patch('password',[PasswordController::class,'update']);
 });
