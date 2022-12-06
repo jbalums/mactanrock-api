@@ -25,8 +25,21 @@ class SupplierRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required','string','max:225', Rule::unique('branches')->ignore($this->id)],
-            'address' => ['required','string','max:225']
+            'name' => ['required','string','max:100'],
+            'address' => ['required','string','max:225'],
+            'street' => ['required','string','max:225'],
+            'owner' => ['required','string','max:100'],
+            'tin' => ['required','string','max:100'],
+            'code' => ['required','string','max:225', Rule::unique('suppliers','code')->ignore($this->id)],
+            'contacts' => ['required','array'],
+            'contacts.*.name' => ['required','string'],
+            'contacts.*.number' => ['required','string'],
+            'contacts.*.email' => ['required','email'],
+            'banks' => ['required','array'],
+            'banks.*.name' => ['required','string'],
+            'banks.*.account_name' => ['required','string'],
+            'banks.*.account_number' => ['required','string'],
+
         ];
     }
 }

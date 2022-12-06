@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SupplierRequest;
 use App\Http\Resources\SupplierResource;
 use App\Models\Supplier;
+use App\Services\SupplierServices;
 
 class SupplierController extends Controller
 {
@@ -16,25 +17,25 @@ class SupplierController extends Controller
         );
     }
 
-    public function store(SupplierRequest $request)
+    public function store(SupplierServices $supplierServices,SupplierRequest $request)
     {
         return SupplierResource::make(
-            Supplier::query()->create($request->validated())
+           $supplierServices->create($request)
         );
     }
 
-    public function update(SupplierRequest $request, int $id)
+    public function update(SupplierServices $supplierServices,SupplierRequest $request, int $id)
     {
-        $branch = Supplier::query()->findOrFail($id);
-        $branch->fill($request->validated());
-        $branch->save();
-        return SupplierResource::make($branch);
+
+        return SupplierResource::make($supplierServices->update($request,$id));
     }
 
     public function destroy(int $id)
     {
-        $branch = Supplier::query()->findOrFail($id);
-        $branch->delete();
-        return SupplierResource::make($branch);
+        $supplier = Supplier::query()->findOrFail($id);
+        $supplier->banks()->delete();
+        $supplier->contacts()->delete();
+        $supplier->delete();
+        return SupplierResource::make($supplier);
     }
 }
