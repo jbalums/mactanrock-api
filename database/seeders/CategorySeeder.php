@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CategorySeeder extends Seeder
 {
@@ -14,22 +16,31 @@ class CategorySeeder extends Seeder
      */
     public function run()
     {
-        $cbu = [
-            ['name' => 'Electrical', 'business_unit' => 'CBU'],
-            ['name' => 'Hardware', 'business_unit' => 'CBU'],
-            ['name' => 'Plumbing', 'business_unit' => 'CBU'],
-            ['name' => 'Equipment', 'business_unit' => 'CBU'],
-            ['name' => 'Tools', 'business_unit' => 'CBU'],
-            ['name' => 'Consumables', 'business_unit' => 'CBU'],
-            ['name' => 'Construction Materials', 'business_unit' => 'CBU'],
-            ['name' => 'Minerals', 'business_unit' => 'CBU'],
-            ['name' => 'Laboratory Apparatus', 'business_unit' => 'CBU'],
-            ['name' => 'Chemicals', 'business_unit' => 'CBU'],
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Category::query()->truncate();
+
+        $categories = [
+            ['name' => 'Electrical'],
+            ['name' => 'Hardware'],
+            ['name' => 'Plumbing'],
+            ['name' => 'Equipment'],
+            ['name' => 'Tools'],
+            ['name' => 'Consumables'],
+            ['name' => 'Construction Materials'],
+            ['name' => 'Minerals'],
+            ['name' => 'Laboratory Apparatus'],
+            ['name' => 'Chemicals'],
+            ['name' => 'Reagents'],
+            ['name' => 'Raw materials'],
+            ['name' => 'Finished products'],
+            ['name' => 'Packaging & Labels'],
+            ['name' => 'Trading items'],
         ];
 
-        $wbu = [
 
+        Category::query()->insert($categories);
 
-        ];
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
     }
 }

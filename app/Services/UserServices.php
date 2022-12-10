@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Enums\UserType;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class UserServices
@@ -13,14 +15,26 @@ class UserServices
 
     public function getUsers(int $take = 10, ?int $branch = null)
     {
+        request()->validate([
+            'column' => ['nullable',Rule::in(['firstname','middlename','lastname','username'])],
+            'direction' => ['nullable',Rule::in(['asc','desc'])],
+        ]);
+
         return User::query()
+            ->when( request('keyword'),
+                function(Builder $q){
+                    $keyword = request('keyword');
+                    return $q->whereRaw("CONCAT_WS(' ',firstname,middlename,lastname,username) like '%{$keyword}%' ");
+                })
+            ->when( request()->get('column') && request()->get('direction'),
+                fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
+            )
             ->latest()
             ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
     }
 
     public function create(array $data, mixed $type): User
     {
-        $user = request()->user();
 
         $user = new User();
         $user->firstname = $data['firstname'];
@@ -32,10 +46,11 @@ class UserServices
         $user->email = $data['email'];
         $user->password = bcrypt($data['password']);
         $user->user_type = $type;
-        if(is_null($user?->branch_id)){
-            $user->branch_id = request()->get('branch_id');
-        } else{
-            $user->branch_id = $user?->branch_id;
+        $user->branch_id = request()->get('branch_id');
+        $user->business_unit = request()->get('division');
+
+        if(request()->hasFile('avatar')){
+            $user->avatar = request()->file('avatar')->store('users');
         }
 
         $user->save();
@@ -52,6 +67,11 @@ class UserServices
         $user->avatar = $data['avatar'] ?? '';
         $user->contact = $data['contact'];
         $user->email = $data['email'];
+        $user->branch_id = request()->get('branch_id');
+        $user->business_unit = request()->get('division');
+        if(request()->hasFile('avatar')){
+            $user->avatar = request()->file('avatar')->store('users');
+        }
         $user->save();
 
         return $user;
