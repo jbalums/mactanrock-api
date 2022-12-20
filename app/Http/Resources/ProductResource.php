@@ -24,6 +24,7 @@ class ProductResource extends JsonResource
             'description' =>  $this->description,
             'unit_value' => $this->unit_value,
             'unit_measurement' => $this->unit_measurement,
+            'uom' => "{$this->unit_value}{$this->unit_measurement}",
             'category_id' => $this->category_id,
             'category' => CategoryResource::make($this->whenLoaded('category')),
             $this->mergeWhen(!is_null($this->total_quantity), fn() => [
