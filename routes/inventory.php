@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Inventory\AcceptingStatsController;
+use App\Http\Controllers\Inventory\ApprovingRequisitionController;
 use App\Http\Controllers\Inventory\InventoryController;
 use App\Http\Controllers\Inventory\ReceivingCompleteController;
 use App\Http\Controllers\Inventory\ReceivingController;
@@ -18,7 +20,10 @@ Route::get('requisition',[RequisitionController::class,'index']);
 Route::get('request',[RequestController::class,'index']);
 Route::get('request/{id}',[RequestController::class,'show']);
 Route::post('requisition', [RequisitionController::class,'store']);
+Route::post('requisition-approved/{id}', [ApprovingRequisitionController::class,'update']);
 Route::get('requisition/{id}',[RequisitionController::class,'show']);
+
+Route::get('accepting-stats',[AcceptingStatsController::class,'index']);
 
 Route::get('/', [InventoryController::class,'index']);
 Route::patch('triggers/{id}', [TriggersController::class,'update']);

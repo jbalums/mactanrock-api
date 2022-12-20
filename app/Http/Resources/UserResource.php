@@ -16,11 +16,14 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
 
+        $name = "{$this->firstname} {$this->middlename} {$this->lastname}";
+
         return array_merge(parent::toArray($request),[
             'business_unit' => getUnit($this->business_unit),
             'unit_code' => $this->business_unit ?? "",
             'branch' => BranchResource::make($this->whenLoaded('branch')),
             'avatar' => $this->avatar ? Storage::url($this->avatar):"",
+            'name' => trim($name)
         ]);
     }
 }

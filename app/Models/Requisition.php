@@ -9,7 +9,7 @@ class Requisition extends Model
 {
     use HasFactory;
 
-    protected $dates = ['needed_at'];
+    protected $dates = ['needed_at', 'date_approved'];
 
 
     public function details(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -20,6 +20,11 @@ class Requisition extends Model
     public function requester(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class,'user_id');
+    }
+
+    public function acceptor()
+    {
+        return $this->belongsTo(User::class, 'accepted_by_id');
     }
 
     public function location()

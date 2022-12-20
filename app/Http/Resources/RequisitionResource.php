@@ -22,7 +22,9 @@ class RequisitionResource extends JsonResource
             'location' => BranchResource::make($this->whenLoaded('location')),
             'created_at' => $this->created_at?->format('M d, Y') ?: "",
             'date_needed' => $this->needed_at?->format('M d, Y') ?: "",
-            "status" => $this->status
+            'date_approved' => $this->date_approved?->format('M d, Y') ?: "",
+            "status" => $this->status,
+            'accepted_by' => UserResource::make($this->whenLoaded('acceptor')),
 
         ];
     }

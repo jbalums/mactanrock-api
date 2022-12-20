@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Requisition;
 use App\Models\RequisitionDetail;
 use App\Models\RequisitionItem;
+use Carbon\Carbon;
 
 class RequisitionServices
 {
@@ -15,8 +16,9 @@ class RequisitionServices
     public function get()
     {
         return Requisition::query()
-            ->with('requester')
+            ->with(['requester','acceptor'])
             ->where('branch_id', request()->user()->branch_id)
+            ->when( request('type'), fn($q,$type) => $q->where('status', $type))
             ->latest()
             ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
     }
@@ -27,9 +29,11 @@ class RequisitionServices
             ->whereHas('requisition' , fn($q) => $q->where('status', RequisitionStatus::Approved))
             ->with(['requisition' => [
                 'location',
-                'requester'
+                'requester',
+                'acceptor'
             ]])
             ->where('location_id', request()->user()->branch_id)
+            ->latest()
             ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
     }
 
@@ -130,6 +134,8 @@ class RequisitionServices
     {
         $requisition = Requisition::query()->where('status', RequisitionStatus::Pending)->findOrFail($id);
         $requisition->status = RequisitionStatus::Approved;
+        $requisition->accepted_by_id = request()->user()->id;
+        $requisition->date_approved = Carbon::now()->format('Y-m-d H:i:s');
         $requisition->save();
     }
 }
