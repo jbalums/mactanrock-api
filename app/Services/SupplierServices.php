@@ -20,6 +20,7 @@ class SupplierServices
         ]);
 
         return Supplier::query()
+            ->with(['banks','contacts'])
             ->when( request('keyword'),
                 function(Builder $q){
                     $keyword = request('keyword');
@@ -40,7 +41,7 @@ class SupplierServices
 
     public function update(Request $request, int $id)
     {
-        $supplier = Supplier::query()->findOrFail($id);
+        $supplier = Supplier::query()->with(['banks','contacts'])->findOrFail($id);
         return $this->supplierData($request, $supplier);
     }
 
@@ -96,6 +97,8 @@ class SupplierServices
 
         $this->contacts($request, $supplier->id);
         $this->banks($request, $supplier->id);
+
+        $supplier->load(['banks','contacts']);
 
         return $supplier;
     }
