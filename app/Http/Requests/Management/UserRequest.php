@@ -37,7 +37,12 @@ class UserRequest extends FormRequest
             'avatar'    => ['nullable','image'],
             'branch_id' => ['required', Rule::exists('branches','id')],
             'type' => ['required', new Rules\Enum(UserType::class)],
-            'division' => [Rule::requiredIf($this->type == "employee"),Rule::in(businessUnits())]
+            'division' => [Rule::requiredIf($this->type == "employee"),Rule::in([
+                'EBU',
+                'WBU',
+                'CBU',
+
+            ])]
         ];
     }
 }

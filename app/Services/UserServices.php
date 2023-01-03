@@ -21,6 +21,8 @@ class UserServices
         ]);
 
         return User::query()
+            ->when(request('location_id'), fn($q,$location) => $q->where('branch_id', $location))
+            ->when(request('business_unit'), fn($q,$business_unit) => $q->where('business_unit', $business_unit))
             ->when( request('keyword'),
                 function(Builder $q){
                     $keyword = request('keyword');
@@ -29,6 +31,7 @@ class UserServices
             ->when( request()->get('column') && request()->get('direction'),
                 fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
             )
+
             ->latest()
             ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
     }
