@@ -69,6 +69,7 @@ class UserServices
         $user->email = $data['email'];
         $user->branch_id = request()->get('branch_id');
         $user->business_unit = request()->get('division');
+        $user->type = request()->get('type');
         if(request()->hasFile('avatar')){
             $user->avatar = request()->file('avatar')->store('users');
         }

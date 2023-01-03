@@ -23,7 +23,7 @@ class UsersController extends Controller
             $data['avatar'] = $request->file('avatar')->store('avatars');
         }
 
-        $user = $userServices->create($data,UserType::ADMIN);
+        $user = $userServices->create($data,$request->get('type'));
 
         return UserResource::make($user);
     }
