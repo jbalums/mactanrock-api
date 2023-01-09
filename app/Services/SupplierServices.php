@@ -29,6 +29,7 @@ class SupplierServices
             ->when( request()->get('column') && request()->get('direction'),
                 fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
             )
+            ->orderBy('name','asc')
             ->latest()
             ->paginate(is_integer(request('paginate',12)) ? request('paginate'):0 );
     }
