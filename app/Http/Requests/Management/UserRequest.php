@@ -41,7 +41,6 @@ class UserRequest extends FormRequest
                 'EBU',
                 'WBU',
                 'CBU',
-
             ])]
         ];
     }

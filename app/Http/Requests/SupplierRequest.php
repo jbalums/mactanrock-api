@@ -34,11 +34,14 @@ class SupplierRequest extends FormRequest
             'contacts' => ['required','array'],
             'contacts.*.name' => ['required','string'],
             'contacts.*.number' => ['required','string'],
+            'contacts.*.position' => ['required','string'],
             'contacts.*.email' => ['required','string','email','max:100'],
             'banks' => ['required','array'],
             'banks.*.name' => ['required','string'],
             'banks.*.account_name' => ['required','string'],
             'banks.*.account_number' => ['required','string'],
+            'banks.*.location' => ['required','string'],
+            'gl_account' => ['required','string','max:225']
 
         ];
     }

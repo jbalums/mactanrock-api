@@ -18,6 +18,7 @@ class CategoriesController extends \App\Http\Controllers\Controller
     {
         $category = new Category;
         $category->name = $request->name;
+        $category->gl_account = $request->gl_account;
         $category->save();
         return CategoryResource::make($category);
     }
@@ -26,6 +27,7 @@ class CategoriesController extends \App\Http\Controllers\Controller
     {
         $category = Category::query()->findOrFail($id);
         $category->name = $request->name;
+        $category->gl_account = $request->gl_account;
         $category->save();
         return CategoryResource::make($category);
     }

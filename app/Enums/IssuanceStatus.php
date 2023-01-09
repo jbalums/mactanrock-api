@@ -2,9 +2,8 @@
 
 namespace App\Enums;
 
-enum RequisitionStatus: string
+enum IssuanceStatus: string
 {
-
     case Pending = "pending";
     case Approved = "approved";
     case Accepted = "accepted";

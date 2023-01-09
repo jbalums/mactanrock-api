@@ -25,7 +25,8 @@ class CategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required','string','max:225', Rule::unique('categories')->ignore($this->id)]
+            'name' => ['required','string','max:225', Rule::unique('categories')->ignore($this->id)],
+            'gl_account' => ['required','string','max:225']
         ];
     }
 }

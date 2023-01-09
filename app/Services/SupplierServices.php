@@ -56,6 +56,7 @@ class SupplierServices
                 'name' => $contact['name'],
                 'email' => $contact['email'] ?? "",
                 'number' => $contact['number'] ?? "",
+                'position' => $contact['position'] ?? "",
                 'supplier_id' => $id,
             ];
         }
@@ -73,6 +74,7 @@ class SupplierServices
                 'name' => $bank['name'],
                 'account_name' => $bank['account_name'],
                 'account_number' => $bank['account_number'],
+                'location' => $bank['location'],
                 'supplier_id' => $id,
             ];
         }
@@ -93,6 +95,7 @@ class SupplierServices
         $supplier->code = $request->get('code');
         $supplier->owner = $request->get('owner');
         $supplier->tin = $request->get('tin');
+        $supplier->gl_account = $request->get('gl_account');
         $supplier->save();
 
         $this->contacts($request, $supplier->id);

@@ -26,7 +26,8 @@ class BranchRequest extends FormRequest
     {
         return [
             'name' => ['required','string','max:225', Rule::unique('branches')->ignore($this->id)],
-            'address' => ['required','string','max:225']
+            'address' => ['required','string','max:225'],
+            'code' => ['required','string','max:100']
         ];
     }
 }
