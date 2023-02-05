@@ -20,6 +20,7 @@ return new class extends Migration
             $table->bigInteger('quantity')->default(0);
             $table->double('price', 10, 2)->default(0);
             $table->date('expired_at')->nullable();
+            $table->string('account_code')->nullable();
             $table->timestamps();
         });
     }

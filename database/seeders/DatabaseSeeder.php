@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'middlename' => 'Main',
             'user_type' => UserType::ADMIN,
             'email' => 'admin@mrii.com',
-            'username' => 'mrii',
+            'username' => 'super-admin-mrii',
             'password' => bcrypt('password'),
        ]);
     }

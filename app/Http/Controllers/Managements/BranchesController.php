@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BranchRequest;
 use App\Http\Resources\BranchResource;
 use App\Models\Branch;
+use Illuminate\Database\Eloquent\Builder;
 
 class BranchesController extends Controller
 {
@@ -13,7 +14,11 @@ class BranchesController extends Controller
     public function index()
     {
         return BranchResource::collection(
-            Branch::query()->latest()->get()
+            Branch::query()->latest()->when(request('keyword'),
+            function(Builder $q){
+                $keyword = request('keyword');
+                return $q->whereRaw("CONCAT_WS(' ',name,address,code) like '%{$keyword}%' ");
+            })->get()
         );
     }
 

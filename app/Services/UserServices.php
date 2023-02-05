@@ -70,6 +70,7 @@ class UserServices
         $user->avatar = $data['avatar'] ?? '';
         $user->contact = $data['contact'];
         $user->email = $data['email'];
+        $user->username = $data['username'];
         $user->branch_id = request()->get('branch_id');
         $user->business_unit = request()->get('division');
         $user->user_type = request()->get('type');

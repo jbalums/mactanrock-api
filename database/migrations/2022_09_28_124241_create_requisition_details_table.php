@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('location_id');
             $table->foreignId('requisition_id')->constrained()->cascadeOnDelete();
             $table->string('status')->default('pending');
+            $table->string('account_code')->nullable();
             $table->timestamps();
         });
     }

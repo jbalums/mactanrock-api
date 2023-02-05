@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('account_name');
             $table->string('account_number');
             $table->foreignId('supplier_id');
-
             $table->timestamps();
         });
     }

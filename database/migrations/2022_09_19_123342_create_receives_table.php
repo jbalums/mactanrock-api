@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('project_name')->nullable();
             $table->foreignId('branch_id')->nullable()->constrained()->nullOnDelete();
             $table->string('status')->default('pending');
+            $table->string('account_code')->nullable();
             $table->timestamps();
         });
     }

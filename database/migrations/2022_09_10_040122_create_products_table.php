@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('reorder_point')->default(0);
             $table->string('brand')->nullable();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('account_code')->nullable();
             $table->timestamps();
         });
     }

@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Managements;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoriesController extends \App\Http\Controllers\Controller
 {
 
     public function index()
     {
-        return CategoryResource::collection(Category::query()->orderBy('name','asc')->get());
+        return CategoryResource::collection(Category::query()->when(request('keyword'),
+        function(Builder $q){
+            $keyword = request('keyword');
+            return $q->whereRaw("CONCAT_WS(' ',name,gl_account) like '%{$keyword}%' ");
+        })->orderBy('name','asc')->get());
     }
 
     public function store(CategoryRequest $request)

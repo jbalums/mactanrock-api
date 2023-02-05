@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->foreignId('branch_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('purpose')->nullable();
+            $table->string('account_code')->nullable();
             $table->timestamps();
         });
     }

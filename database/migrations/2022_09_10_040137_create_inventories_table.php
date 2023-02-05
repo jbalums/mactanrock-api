@@ -28,6 +28,7 @@ return new class extends Migration
             $table->foreignId('receive_id')->nullable();
             $table->foreignId('product_id')->constrained();
             $table->foreignId('inventory_location_id');
+            $table->string('account_code')->nullable();
             $table->timestamps();
         });
     }
