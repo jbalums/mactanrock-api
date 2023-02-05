@@ -15,8 +15,9 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        $name = "{$this->firstname} {$this->middlename} {$this->lastname}";
+        $m_i = substr($this->middlename ?? "",0, 1);
+        $middle = strlen($m_i) > 0 ? $m_i.'.':'';
+        $name = "{$this->firstname} {$middle} {$this->lastname}";
 
         return array_merge(parent::toArray($request),[
             'business_unit' => getUnit($this->business_unit),
