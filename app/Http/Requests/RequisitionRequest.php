@@ -26,6 +26,7 @@ class RequisitionRequest extends FormRequest
     {
         return [
             'project_code' => ['required','string','max:255'],
+            'account_code' => ['nullable','string','max:255'],
             'inventory_id' => ['required','array'],
             'purpose' => ['required','string'],
             'inventory_id.*' => ['required',

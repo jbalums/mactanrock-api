@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $main_warehouse = User::query()->create([
+        $main_warehouse = Branch::query()->create([
             'name' => 'Main Warehouse',
             'address' => '3rd Floor FCB Financial Center Building A.C. Cortes Ave. Mandaue City, Cebu, Philippines 6014',
             'code' => 'MW-000001',
@@ -25,12 +25,12 @@ class DatabaseSeeder extends Seeder
         $admin = User::query()->create([
              'firstname' => 'Super',
              'lastname' => 'Admin',
-             'contact' => '09978011111',
+             'contact' => '09123456789',
              'middlename' => ' ',
              'user_type' => UserType::ADMIN,
              'email' => 'admin@mrii.com',
              'username' => 'super-admin-mrii',
-             'branch_id ' => 1,
+             'branch_id' => 1,
              'password' => bcrypt('password'),
         ]);
     }

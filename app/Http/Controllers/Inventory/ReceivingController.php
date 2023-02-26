@@ -14,8 +14,7 @@ class ReceivingController extends Controller
 
     public function index(ReceivingService $receivingService)
     {
-
-        return ReceiveResource::collection($receivingService->get( request()->user()->branch_id));
+        return ReceiveResource::collection($receivingService->get(request()->user()->branch_id));
     }
     public function store(ReceiveRequest $request, InventoryServices $inventoryServices, ReceivingService $receivingService)
     {

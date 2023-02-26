@@ -18,6 +18,11 @@ class RequisitionServices
         return Requisition::query()
             ->with(['requester','acceptor'])
             ->where('branch_id', request()->user()->branch_id)
+            ->when( request('keyword'),
+                function(Builder $q){
+                    $keyword = request('keyword');
+                    return $q->whereRaw("CONCAT_WS(' ',project_code) like '%{$keyword}%' ");
+                })
             ->when( request('type'), fn($q,$type) => $q->where('status', $type))
             ->latest()
             ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
@@ -69,6 +74,8 @@ class RequisitionServices
         $user = request()->user();
         $requisition = new Requisition();
         $requisition->project_code = request()->get('project_code');
+        $requisition->account_code = request()->get('account_code');
+        $requisition->purpose = request()->get('purpose');
         $requisition->branch_id = $user->branch_id;
         $requisition->needed_at = request()->get('date_needed');
         $requisition->user_id = $user->id;
@@ -114,7 +121,7 @@ class RequisitionServices
 
 
 
-        return $requisition;
+        return $this->show($requisition->id);
     }
 
     public function updateStatus(int $id, string $status, string $remarks = "")

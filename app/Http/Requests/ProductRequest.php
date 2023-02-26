@@ -28,6 +28,7 @@ class ProductRequest extends FormRequest
 
         return [
             'name' => ['required','string','max:255'],
+            'account_code' => ['nullable','string','max:255'],
             'brand' => ['nullable','string','max:255'],
             'code' => ['required','string', Rule::unique('products','code')->ignore($this->product)],
             'unit_measurement' => ['required','string','max:255'],

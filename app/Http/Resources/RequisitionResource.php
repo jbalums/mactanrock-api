@@ -16,7 +16,9 @@ class RequisitionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'ref' => $this->account_code,
             'project_code' => $this->project_code,
+            'account_code' => $this->account_code,
             'requester' => UserResource::make($this->whenLoaded('requester')),
             'details' => RequisitionDetailsResource::collection($this->whenLoaded('details')),
             'location' => BranchResource::make($this->whenLoaded('location')),

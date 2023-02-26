@@ -20,7 +20,7 @@ class UserServices
             'direction' => ['nullable',Rule::in(['asc','desc'])],
         ]);
 
-        return User::query()
+        return User::query()->with(['branch'])
             ->when(request('location_id'), fn($q,$location) => $q->where('branch_id', $location))
             ->when(request('business_unit'), fn($q,$business_unit) => $q->where('business_unit', $business_unit))
             ->when( request('keyword'),

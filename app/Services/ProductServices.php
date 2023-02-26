@@ -59,6 +59,7 @@ class ProductServices
     {
         $product->name = $request->get('name');
         $product->code = $request->get('code');
+        $product->account_code = $request->get('account_code');
         $product->brand = $request->get('brand',"");
         $product->description = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $request->get('description', ''));
         $product->category_id = $request->get('category_id');
