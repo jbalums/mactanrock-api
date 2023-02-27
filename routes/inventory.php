@@ -4,6 +4,7 @@ use App\Http\Controllers\Inventory\AcceptingStatsController;
 use App\Http\Controllers\Inventory\ApprovingRequisitionController;
 use App\Http\Controllers\Inventory\InventoryController;
 use App\Http\Controllers\Inventory\ReceivingCompleteController;
+use App\Http\Controllers\Inventory\ProjectPlantOrdersController;
 use App\Http\Controllers\Inventory\ReceivingController;
 use App\Http\Controllers\Inventory\RequestController;
 use App\Http\Controllers\Inventory\RequisitionController;
@@ -22,6 +23,10 @@ Route::get('request/{id}',[RequestController::class,'show']);
 Route::post('requisition', [RequisitionController::class,'store']);
 Route::post('requisition-approved/{id}', [ApprovingRequisitionController::class,'update']);
 Route::get('requisition/{id}',[RequisitionController::class,'show']);
+
+
+Route::get('project-plant-orders',[ProjectPlantOrdersController::class,'index']);
+Route::get('project-plant-orders/{id}',[ProjectPlantOrdersController::class,'show']);
 
 Route::get('accepting-stats',[AcceptingStatsController::class,'index']);
 
