@@ -18,11 +18,13 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $main_warehouse = Branch::query()->create([
+            'id' => 1,
             'name' => 'Main Warehouse',
             'address' => '3rd Floor FCB Financial Center Building A.C. Cortes Ave. Mandaue City, Cebu, Philippines 6014',
             'code' => 'MW-000001',
         ]);
         $main_warehouse = Branch::query()->create([
+            'id' => 2,
             'name' => 'Bulacan Warehouse',
             'address' => 'Bulacan, Philippines',
             'code' => 'MW-000002',

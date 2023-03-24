@@ -18,6 +18,14 @@ class InventoryController
         ]);
         return ProductResource::collection($services->getList());
     }
+    public function branchInventory(InventoryServices $services)
+    {
+        request()->validate([
+            'column' => ['nullable', Rule::in(['name','description','quantity','code','brand'])],
+            'direction' => ['nullable', Rule::in(['asc','desc'])]
+        ]);
+        return ProductResource::collection($services->getBranchInventory());
+    }
 
     public function histories($id, InventoryServices $services)
     {

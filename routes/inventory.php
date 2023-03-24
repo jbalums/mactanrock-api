@@ -31,6 +31,7 @@ Route::get('project-plant-orders/{id}',[ProjectPlantOrdersController::class,'sho
 Route::get('accepting-stats',[AcceptingStatsController::class,'index']);
 
 Route::get('/', [InventoryController::class, 'index']);
+Route::get('/branch-inventory', [InventoryController::class, 'branchInventory']);
 Route::get('/status', [InventoryController::class, 'status']);
 Route::get('/histories/{id}', [InventoryController::class, 'histories']);
 Route::patch('triggers/{id}', [TriggersController::class, 'update']);

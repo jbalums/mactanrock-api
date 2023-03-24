@@ -55,15 +55,15 @@ class UserServices
         if(request()->hasFile('avatar')){
             $user->avatar = request()->file('avatar')->store('users');
         }
-
-        $user->save();
-
-        return $user;
+        $user->save(); 
+        $last_user = User::query()->with(['branch'])->findOrfail($user->id);
+        
+        return $last_user;
     }
 
     public function update(array $data, int $id): User
     {
-        $user = User::query()->findOrfail($id);
+        $user = User::query()->with(['branch'])->findOrfail($id);
         $user->firstname = $data['firstname'];
         $user->lastname = $data['lastname'];
         $user->middlename = $data['middlename'] ?? '';

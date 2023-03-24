@@ -25,6 +25,12 @@ class InventoryServices
                 "products.id as productId"])
             ->when( request('location_id'),
                 fn(Builder $builder) => $builder->where('branch_id',request('location_id') ))
+            ->when(request('purpose') == 'production',
+                fn(Builder $builder) => $builder->whereIn('branch_id',[1,2]))
+            ->when(request('purpose') != 'production' && request('purpose') != 'internal_use' ,
+                fn(Builder $builder) => $builder->where('branch_id',1))
+            ->when(request('purpose') == 'internal_use',
+                fn(Builder $builder) => $builder->where('branch_id',request()->user()->branch->id))
             ->when(request('by_unit'),
                 fn(Builder $builder) => $builder->where('business_unit', request('by_unit')))
             ->when( request('keyword'),
@@ -37,6 +43,31 @@ class InventoryServices
             ->paginate( request('paginate') ?:12 );
     }
     
+    public function getBranchInventory()
+    {
+
+        return InventoryLocation::query()
+            ->with(['location'])
+            ->join('products','inventory_locations.product_id','=','products.id')
+            ->select(['inventory_locations.*','products.name',
+                'products.code','products.description','products.unit_measurement',
+                'products.unit_value','products.brand','products.category_id',
+                "products.id as productId"])
+            ->when( request('location_id'),
+                fn(Builder $builder) => $builder->where('branch_id',request('location_id') )) 
+            ->when(request('by_unit'),
+                fn(Builder $builder) => $builder->where('business_unit', request('by_unit')))
+            ->when( request('keyword'),
+                function(Builder $q){
+                    $keyword = request('keyword');
+                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like %?% ",[$keyword]);
+                })
+            ->when( request('column') && request('direction'),
+                fn(Builder $builder) => $builder->orderBy(request('column'),request('direction')))
+            ->paginate( request('paginate') ?:12 );
+    }
+    
+
     public function getHistories($id) {
         return Inventory::query()->with(['receives'])->where('inventory_location_id', $id)->get();
     }
