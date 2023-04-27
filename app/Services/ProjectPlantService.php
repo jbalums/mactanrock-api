@@ -26,7 +26,7 @@ class ProjectPlantService
                     return $q->whereRaw("CONCAT_WS(' ',project_code) like '%{$keyword}%' ");
                 })
             ->latest()
-            ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
+            ->paginate(is_integer(request()->get('paginate')) ?? 0);
     }
  
 

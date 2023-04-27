@@ -33,7 +33,7 @@ class UserServices
             )
 
             ->latest()
-            ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
+            ->paginate(is_integer(request()->get('paginate')) ?? 1000000);
     }
 
     public function create(array $data, mixed $type): User

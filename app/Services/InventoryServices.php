@@ -35,12 +35,12 @@ class InventoryServices
                 fn(Builder $builder) => $builder->where('business_unit', request('by_unit')))
             ->when( request('keyword'),
                 function(Builder $q){
-                    $keyword = request('keyword');
-                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like %?% ",[$keyword]);
+                    $keyword = request('keyword'); 
+                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like '%{$keyword}%' ");
                 })
             ->when( request('column') && request('direction'),
                 fn(Builder $builder) => $builder->orderBy(request('column'),request('direction')))
-            ->paginate( request('paginate') ?:12 );
+                ->paginate(is_integer(request()->get('paginate')) ?? 0);
     }
     
     public function getBranchInventory()
@@ -60,7 +60,7 @@ class InventoryServices
             ->when( request('keyword'),
                 function(Builder $q){
                     $keyword = request('keyword');
-                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like %?% ",[$keyword]);
+                    return $q->whereRaw("CONCAT_WS(' ',name,code,brand) like '%{$keyword}%' ");
                 })
             ->when( request('column') && request('direction'),
                 fn(Builder $builder) => $builder->orderBy(request('column'),request('direction')))

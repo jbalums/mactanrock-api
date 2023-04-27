@@ -20,7 +20,8 @@ class ReceivingService
             ])
             ->when(!is_null($branch_id), fn($q) => $q->where('branch_id', $branch_id))
             ->latest()
-            ->paginate(is_integer(request('paginate',12)) ?request('paginate'):0);
+            ->paginate(is_integer(request()->get('paginate')) ?? 1000000);
+          
     }
     public function create(Request $request)
     {

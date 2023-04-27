@@ -28,7 +28,7 @@ class ProductServices
                 fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
             )
             ->latest()
-            ->paginate( is_integer(request('paginate',12)) ? request('paginate'):0 );
+            ->paginate(is_integer(request()->get('paginate')) ? request()->get('paginate'):1000000);
     }
     public function create(Request $request)
     {

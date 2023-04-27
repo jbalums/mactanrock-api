@@ -34,7 +34,7 @@ class RequisitionServices
                 })
             ->when( request('type'), fn($q,$type) => $q->where('status', $type))
             ->latest()
-            ->paginate(request('paginate') ?? 12);
+            ->paginate(is_integer(request()->get('paginate')) ?? 0);
     }
 
     public function getIssuances()

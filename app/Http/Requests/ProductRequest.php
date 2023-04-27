@@ -32,7 +32,7 @@ class ProductRequest extends FormRequest
             'brand' => ['nullable','string','max:255'],
             'code' => ['required','string', Rule::unique('products','code')->ignore($this->product)],
             'unit_measurement' => ['required','string','max:255'],
-            'description' => ['required','string','max:7000'],
+            'description' => ['nullable','string','max:7000'],
             'unit_value' => ['required','numeric'],
             'category_id' => ['nullable', Rule::exists('categories','id')]
 
