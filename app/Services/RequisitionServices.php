@@ -27,7 +27,7 @@ class RequisitionServices
     public function get()
     {
         return Requisition::query()
-            ->with(['requester','acceptor'])
+            ->with(['requester', 'acceptor'])
             ->where('branch_id', request()->user()->branch_id)
             ->when(
                 request('keyword'),
@@ -44,7 +44,7 @@ class RequisitionServices
     public function getIssuances()
     {
         return Requisition::query()
-            ->with(['requester','acceptor'])
+            ->with(['requester', 'acceptor'])
             ->where('issuance_status', '!=', '')
             ->where('status', 'accepted')
             ->when(
@@ -61,7 +61,7 @@ class RequisitionServices
     public function getReceivingIssuances()
     {
         return Requisition::query()
-            ->with(['requester','acceptor'])
+            ->with(['requester', 'acceptor'])
             ->where('issuance_status', 'completed')
             ->where('status', 'accepted')
             ->where('branch_id', request()->user()->branch_id)
@@ -80,7 +80,7 @@ class RequisitionServices
     public function getIssuancesForApproval()
     {
         return Requisition::query()
-            ->with(['requester','acceptor'])
+            ->with(['requester', 'acceptor'])
             ->where('status', 'pending_approval')
             ->where('issuance_status', 'completed')
             ->when(
@@ -112,10 +112,11 @@ class RequisitionServices
     public function showRequest(int $id)
     {
         return RequisitionDetail::query()
-            ->with(['requisition' => [
-                'location',
-                'requester',
-            ],
+            ->with([
+                'requisition' => [
+                    'location',
+                    'requester',
+                ],
                 'items' => [
                     'product'
                 ]
@@ -136,8 +137,8 @@ class RequisitionServices
             ],
             'requester'
         ])
-        // ->where('branch_id', $user->branch_id)
-        ->findOrFail($id);
+            // ->where('branch_id', $user->branch_id)
+            ->findOrFail($id);
     }
     public function create()
     {
@@ -235,12 +236,12 @@ class RequisitionServices
                         $rd_item->save();
 
                         $data = [
-                            'from_request_id'=>$requisition->id,
-                            'transacted_by_id'=>$user->id,
-                            'accepted_by_id'=>$user->id,
-                            'from_branch_id'=>$user->branch_id,
-                            'to_branch_id'=>$user->branch_id,
-                            'description'=>$requisition->purpose
+                            'from_request_id' => $requisition->id,
+                            'transacted_by_id' => $user->id,
+                            'accepted_by_id' => $user->id,
+                            'from_branch_id' => $user->branch_id,
+                            'to_branch_id' => $user->branch_id,
+                            'description' => $requisition->purpose
                         ];
                         $this->inventoryServices->stockOut($item->product_id, (int)$item->request_quantity, $data);
                     }
@@ -289,11 +290,11 @@ class RequisitionServices
 
                         $dataOut = [
                             'from_request_id' => $requisition->id,
-                            'transacted_by_id'=> $user->id,
-                            'accepted_by_id'=> $user->id,
-                            'from_branch_id'=> 1,
-                            'to_branch_id'=> $requisition->branch_id,
-                            'description'=> $requisition->purpose.' item issuance'
+                            'transacted_by_id' => $user->id,
+                            'accepted_by_id' => $user->id,
+                            'from_branch_id' => 1,
+                            'to_branch_id' => $requisition->branch_id,
+                            'description' => $requisition->purpose . ' item issuance'
                         ];
 
                         $stock_out = $this->inventoryServices->stockOut($item->product_id, $issued_qty, $dataOut);
@@ -335,15 +336,15 @@ class RequisitionServices
                     $rd_item->save();
 
                     $dataIn = [
-                        'transacted_by_id'=> $user->id,
-                        'from_request_id'=>$requisition->id,
-                        'accepted_by_id'=> $user->id,
-                        'from_branch_id'=> 1,
-                        'to_branch_id'=> $user->branch_id,
-                        'description'=> $requisition->purpose.' received issuance'
+                        'transacted_by_id' => $user->id,
+                        'from_request_id' => $requisition->id,
+                        'accepted_by_id' => $user->id,
+                        'from_branch_id' => 1,
+                        'to_branch_id' => $user->branch_id,
+                        'description' => $requisition->purpose . ' received issuance'
                     ];
 
-                    $stock_in = $this->inventoryServices->stockIn($item->product_id, $received_qty, $dataIn);
+                    $stock_in = $this->inventoryServices->stockIn($item->product_id, $received_qty, $dataIn, $user->branch_id);
 
 
                     if ($received_qty != $rd_item->request_quantity) {

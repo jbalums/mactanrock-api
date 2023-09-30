@@ -12,8 +12,8 @@ class ProductServices
     public function get()
     {
         request()->validate([
-            'column' => ['nullable',Rule::in(['name','code','brand'])],
-            'direction' => ['nullable',Rule::in(['asc','desc'])],
+            'column' => ['nullable', Rule::in(['name', 'code', 'brand'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
         ]);
 
         return Product::query()
@@ -30,7 +30,7 @@ class ProductServices
                 fn ($q) => $q->orderBy(request()->get('column'), request()->get('direction'))
             )
             ->latest()
-            ->paginate(100000);
+            ->paginate(request('paginate') ? request('paginate') : 10);
     }
     public function create(Request $request)
     {

@@ -18,17 +18,19 @@ class InventoryServices
         return InventoryLocation::query()
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select(['inventory_locations.*','products.name','products.account_code',
-                'products.code','products.description','products.unit_measurement',
-                'products.unit_value','products.brand','products.category_id',
-                "products.id as productId"])
+            ->select([
+                'inventory_locations.*', 'products.name', 'products.account_code',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id',
+                "products.id as productId"
+            ])
             ->when(
                 request('location_id'),
                 fn (Builder $builder) => $builder->where('branch_id', request('location_id'))
             )
             ->when(
                 request('purpose') == 'production',
-                fn (Builder $builder) => $builder->whereIn('branch_id', [1,2])
+                fn (Builder $builder) => $builder->whereIn('branch_id', [1, 2])
             )
             ->when(
                 request('purpose') != 'production' && request('purpose') != 'internal_use',
@@ -53,7 +55,7 @@ class InventoryServices
                 request('column') && request('direction'),
                 fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
-                ->paginate(is_integer(request()->get('paginate')) ?? 0);
+            ->paginate(is_integer(request()->get('paginate')) ?? 0);
     }
     public function getItemCosting()
     {
@@ -61,10 +63,12 @@ class InventoryServices
         return InventoryLocation::query()
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select(['inventory_locations.*','products.name','products.account_code',
-                'products.code','products.description','products.unit_measurement',
-                'products.unit_value','products.brand','products.category_id', 'price',
-                "products.id as productId"])
+            ->select([
+                'inventory_locations.*', 'products.name', 'products.account_code',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id', 'price',
+                "products.id as productId"
+            ])
             ->when(
                 request('keyword'),
                 function (Builder $q) {
@@ -77,7 +81,7 @@ class InventoryServices
                 request('column') && request('direction'),
                 fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
-                ->paginate(is_integer(request()->get('paginate')) ?? 0);
+            ->paginate(is_integer(request()->get('paginate')) ?? 0);
     }
 
     public function getBranchInventory()
@@ -85,10 +89,12 @@ class InventoryServices
         return InventoryLocation::query()
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select(['inventory_locations.*','products.name',
-                'products.code','products.description','products.unit_measurement',
-                'products.unit_value','products.brand','products.category_id',
-                "products.id as productId"])
+            ->select([
+                'inventory_locations.*', 'products.name',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id',
+                "products.id as productId"
+            ])
             ->when(
                 request('location_id'),
                 fn (Builder $builder) => $builder->where('branch_id', request('location_id'))
@@ -120,21 +126,25 @@ class InventoryServices
     public function getLowStock()
     {
         return InventoryLocation::query()
-        ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-        ->select(['inventory_locations.*','products.name',
-            'products.code','products.description','products.unit_measurement',
-            'products.unit_value','products.brand','products.category_id',
-            "products.id as productId"])->whereRaw('inventory_locations.quantity <= inventory_locations.stock_low_level')->get();
+            ->join('products', 'inventory_locations.product_id', '=', 'products.id')
+            ->select([
+                'inventory_locations.*', 'products.name',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id',
+                "products.id as productId"
+            ])->whereRaw('inventory_locations.quantity <= inventory_locations.stock_low_level')->get();
     }
 
     public function getEmptyStock()
     {
         return InventoryLocation::query()
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select(['inventory_locations.*','products.name',
-                'products.code','products.description','products.unit_measurement',
-                'products.unit_value','products.brand','products.category_id',
-                "products.id as productId"])->where('inventory_locations.quantity', '0')->get();
+            ->select([
+                'inventory_locations.*', 'products.name',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id',
+                "products.id as productId"
+            ])->where('inventory_locations.quantity', '0')->get();
     }
 
     public function updateTriggers(int $id)
@@ -142,10 +152,12 @@ class InventoryServices
         $inventory = InventoryLocation::query()
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select(['inventory_locations.*','products.name',
-                'products.code','products.description','products.unit_measurement',
-                'products.unit_value','products.brand','products.category_id',
-                "products.id as productId"])
+            ->select([
+                'inventory_locations.*', 'products.name',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id',
+                "products.id as productId"
+            ])
             ->findOrFail($id);
         $inventory->stock_low_level = request()->get('stock_low_level');
         $inventory->reorder_point = request()->get('reorder_point');
@@ -158,10 +170,12 @@ class InventoryServices
         $inventory = InventoryLocation::query()
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select(['inventory_locations.*','products.name',
-                'products.code','products.description','products.unit_measurement',
-                'products.unit_value','products.brand','products.category_id',
-                "products.id as productId"])
+            ->select([
+                'inventory_locations.*', 'products.name',
+                'products.code', 'products.description', 'products.unit_measurement',
+                'products.unit_value', 'products.brand', 'products.category_id',
+                "products.id as productId"
+            ])
             ->findOrFail($id);
         $inventory->price = request()->get('price');
         $inventory->save();
@@ -259,7 +273,7 @@ class InventoryServices
             'quantity' => $inventory_location->quantity,
             'batch' => $user->branch_id,
             'receive_id' => $user->id,
-            'product_id'=> $inventory_location->product_id,
+            'product_id' => $inventory_location->product_id,
         ]);
     }
 
@@ -276,8 +290,8 @@ class InventoryServices
         $transaction->to_client_id = $data['to_client_id'] ?? null;
         $transaction->from_branch_id = $data['from_branch_id'] ?? null;
         $transaction->from_supplier_id = $data['from_supplier_id'] ?? null;
-        $transaction->from_request_id= $data['from_request_id'] ?? null;
-        $transaction->receive_id= $data['receive_id'] ?? null;
+        $transaction->from_request_id = $data['from_request_id'] ?? null;
+        $transaction->receive_id = $data['receive_id'] ?? null;
         $transaction->details = $data['details'] ?? '';
         $transaction->action = $data['action'];
         $transaction->movement = $data['movement'];
