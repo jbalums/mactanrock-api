@@ -7,15 +7,17 @@ use App\Http\Controllers\Managements\ProductsController;
 use App\Http\Controllers\Managements\SupplierController;
 use App\Http\Controllers\Managements\UserPasswordController;
 use App\Http\Controllers\Managements\UsersController;
+use App\Http\Controllers\UnitsController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::prefix('management')->group( function (){
+Route::prefix('management')->group(function () {
     Route::apiResource('users', UsersController::class);
     Route::apiResource('categories', CategoriesController::class);
+    Route::apiResource('units', UnitsController::class);
     Route::apiResource('branches', BranchesController::class);
     Route::apiResource('suppliers', SupplierController::class)->parameters(['suppliers' => 'id']);
     Route::apiResource('products', ProductsController::class);
-    Route::patch('user-password/{id}', [UserPasswordController::class,'update']);
-    Route::patch('password',[PasswordController::class,'update']);
+    Route::patch('user-password/{id}', [UserPasswordController::class, 'update']);
+    Route::patch('password', [PasswordController::class, 'update']);
 });
