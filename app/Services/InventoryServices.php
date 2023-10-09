@@ -24,10 +24,12 @@ class InventoryServices
                 'products.unit_value', 'products.brand', 'products.category_id',
                 "products.id as productId"
             ])
-            ->when(
-                request('location_id'),
-                fn (Builder $builder) => $builder->where('branch_id', request('location_id'))
-            )
+            ->when(request()->user()->branch->id == 1 && request('location_id'), function (Builder $query) {
+                $query->where('branch_id', request('location_id'));
+            })
+            ->when(request()->user()->branch->id != 1, function (Builder $query) {
+                $query->where('branch_id', request()->user()->branch->id);
+            })
             ->when(
                 request('purpose') == 'production',
                 fn (Builder $builder) => $builder->whereIn('branch_id', [1, 2])
