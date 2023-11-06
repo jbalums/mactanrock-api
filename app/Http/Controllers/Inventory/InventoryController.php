@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Requisition;
 
 use App\Services\InventoryServices;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 
@@ -19,16 +20,16 @@ class InventoryController
     public function index(InventoryServices $services)
     {
         request()->validate([
-            'column' => ['nullable', Rule::in(['name','description','quantity','code','brand'])],
-            'direction' => ['nullable', Rule::in(['asc','desc'])]
+            'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
         return ProductResource::collection($services->getList());
     }
     public function itemCosting(InventoryServices $services)
     {
         request()->validate([
-            'column' => ['nullable', Rule::in(['name','description','quantity','code','brand'])],
-            'direction' => ['nullable', Rule::in(['asc','desc'])]
+            'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
         return ProductResource::collection($services->getItemCosting());
     }
@@ -36,32 +37,32 @@ class InventoryController
     public function warehouseIssuances(InventoryServices $services)
     {
         request()->validate([
-            'column' => ['nullable', Rule::in(['name','description','quantity','code','brand'])],
-            'direction' => ['nullable', Rule::in(['asc','desc'])]
+            'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
 
         $histories = InventoryTransaction::query()->with('inventory', 'inventory.product', 'inventory.location')->where('movement', 'out')->get();
-        return response(['data'=> $histories, 'histories'=> $histories]);
+        return response(['data' => $histories, 'histories' => $histories]);
         // return ProductResource::collection($services->getItemCosting());
     }
 
     public function inputsOfReceipts(InventoryServices $services)
     {
         request()->validate([
-            'column' => ['nullable', Rule::in(['name','description','quantity','code','brand'])],
-            'direction' => ['nullable', Rule::in(['asc','desc'])]
+            'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
 
         $histories = InventoryTransaction::query()->with('inventory', 'inventory.product', 'inventory.location')->where('movement', 'in')->get();
-        return response(['data'=> $histories, 'histories'=> $histories]);
+        return response(['data' => $histories, 'histories' => $histories]);
         // return ProductResource::collection($services->getItemCosting());
     }
 
     public function branchInventory(InventoryServices $services)
     {
         request()->validate([
-            'column' => ['nullable', Rule::in(['name','description','quantity','code','brand'])],
-            'direction' => ['nullable', Rule::in(['asc','desc'])]
+            'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
         return ProductResource::collection($services->getBranchInventory());
     }
@@ -70,8 +71,8 @@ class InventoryController
     {
         $inventory = Inventory::query()->where('inventory_location_id', $id)->first();
         $histories = InventoryTransaction::query()
-                        ->with(['receive', 'request'])
-                        ->where('inventory_id', $inventory->id)->get();
+            ->with(['receive', 'request'])
+            ->where('inventory_id', $inventory->id)->get();
         return response(['data' => $histories]);
         // return  $inventory;//
         // return InventoryResource::collection($services->getHistories($id));
@@ -80,7 +81,7 @@ class InventoryController
     public function status(InventoryServices $services)
     {
         return [
-            'low'=> ProductResource::collection($services->getLowStock()),
+            'low' => ProductResource::collection($services->getLowStock()),
             'empty' => ProductResource::collection($services->getEmptyStock())
         ];
     }
@@ -91,11 +92,11 @@ class InventoryController
             DB::beginTransaction();
             $user = request()->user();
             $data = [
-                'transacted_by_id'=>$user->id,
-                'accepted_by_id'=>$user->id,
-                'from_branch_id'=>$user->branch_id,
-                'to_branch_id'=>$user->branch_id,
-                'description'=>'repack item'
+                'transacted_by_id' => $user->id,
+                'accepted_by_id' => $user->id,
+                'from_branch_id' => $user->branch_id,
+                'to_branch_id' => $user->branch_id,
+                'description' => 'repack item'
             ];
             $stock_in = $inventory_services->stockIn(request('output_product_id'), request('output_qty'), $data);
             $stock_out = $inventory_services->stockOut(request('product_id'), request('qty'), $data);
@@ -109,53 +110,60 @@ class InventoryController
     }
 
 
-    public function dashboardData()
+    public function dashboardData(InventoryServices $inventoryServices)
     {
+        $inventoryServices->populateInventories();
         $user = request()->user();
-        $rc_exclude_purpose = [ 'production', 'project_plant', 'stocking', 'for_purchase' ];
+        $rc_exclude_purpose = ['production', 'project_plant', 'stocking', 'for_purchase'];
 
         $requests_received = Requisition::query()->where('branch_id', '!=', 1)
-                                ->whereNotIn('purpose', $rc_exclude_purpose)
-                                ->get()
-                                ->count();
+            ->whereNotIn('purpose', $rc_exclude_purpose)
+            ->get()
+            ->count();
         $branch_users = User::query()->where('branch_id', $user->branch_id)->pluck('id');
         $requests_accepted = Requisition::query()->whereIn('accepted_by_id', $branch_users)->get()->count();
 
         $materials_received = InventoryTransaction::where('branch_id', $user->branch_id)
-                            ->where('details', 'item issuance')
-                            ->where('movement', 'in')
-                            ->get()
-                            ->count();
+            ->where('details', 'item issuance')
+            ->where('movement', 'in')
+            ->get()
+            ->count();
 
         $materials_issued = InventoryTransaction::where('branch_id', $user->branch_id)
-                        ->where('details', 'item issuance')
-                        ->where('movement', 'out')
-                        ->get()
-                        ->count();
+            ->where('details', 'item issuance')
+            ->where('movement', 'out')
+            ->get()
+            ->count();
 
         $materials_returned = InventoryTransaction::where('branch_id', $user->branch_id)
-        ->where('details', 'return materials to main warehouse')
-        ->where('movement', 'out')
-        ->get()
-        ->count();
+            ->where('details', 'return materials to main warehouse')
+            ->where('movement', 'out')
+            ->get()
+            ->count();
         $fast_moving_items = InventoryTransaction::select('inventory_id', DB::raw('count(*) as total'))
-                            ->with('inventory', 'inventory.product', 'inventory.location')
-                            ->where('branch_id', $user->branch_id)
-                            ->groupBy('inventory_id')
-                            ->get();
+            ->with('inventory', 'inventory.product', 'inventory.location')
+            ->where('branch_id', $user->branch_id)
+            ->groupBy('inventory_id')
+            ->get();
 
         $levels_per_product = InventoryLocation::query()
-                            ->with('inventory', 'inventory.product')
-                            ->orderBy('updated_at', 'desc')
-                            ->limit(10)
-                            ->where('branch_id', $user->branch_id)
-                            ->get();
+            ->with('inventory', 'inventory.product')
+            ->orderBy('updated_at', 'desc')
+            ->limit(10)
+            ->where('branch_id', $user->branch_id)
+            ->get();
 
         $levels_per_branch = InventoryLocation::query()
-                            ->with('inventory', 'inventory.product', 'location')
-                            ->orderBy('updated_at', 'desc')
-                            ->limit(10)
-                            ->get();
-        return response(['request_received'=>$requests_received, 'requests_accepted'=>$requests_accepted, 'materials_received'=> $materials_received, 'materials_issued'=>$materials_issued, 'materials_returned'=>$materials_returned, 'fast_moving_items'=>$fast_moving_items, 'levels_per_product'=>$levels_per_product, 'levels_per_branch'=>$levels_per_branch,$user->branch_id]);
+            ->with('inventory', 'inventory.product', 'location')
+            ->orderBy('updated_at', 'desc')
+            ->when(
+                $user->branch_id != 1,
+                function (Builder $q) use ($user) {
+                    return $q->where('branch_id', $user->branch_id);
+                }
+            )
+            ->limit(10)
+            ->get();
+        return response(['request_received' => $requests_received, 'requests_accepted' => $requests_accepted, 'materials_received' => $materials_received, 'materials_issued' => $materials_issued, 'materials_returned' => $materials_returned, 'fast_moving_items' => $fast_moving_items, 'levels_per_product' => $levels_per_product, 'levels_per_branch' => $levels_per_branch, $user->branch_id]);
     }
 }

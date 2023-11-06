@@ -55,7 +55,7 @@ class InventoryServices
                 request('column') && request('direction'),
                 fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
-            ->paginate(is_integer(request()->get('paginate')) ?? 0);
+            ->paginate(is_integer(request()->get('paginate')) ? request()->get('paginate') : 15);
     }
     public function getItemCosting()
     {
@@ -270,7 +270,7 @@ class InventoryServices
         return Inventory::query()->firstOrCreate([
             'inventory_location_id' => $inventory_location->id,
         ], [
-            'quantity' => $inventory_location->quantity,
+            'quantity' => $inventory_location?->quantity || 0,
             'batch' => $user->branch_id,
             'receive_id' => $user->id,
             'product_id' => $inventory_location->product_id,
@@ -373,6 +373,18 @@ class InventoryServices
         } catch (\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
+        }
+    }
+
+    public function populateInventories()
+    {
+        $products = Product::query()->get();
+        $user = request()->user();
+        foreach ($products as $product) {
+
+            $inventoryLocation = $this->resolveProduct($product->id, $user->branch_id);
+
+            $stock = $this->resolveStockInventory($inventoryLocation);
         }
     }
 }
