@@ -27,4 +27,8 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function inventoryLocation()
+    {
+        return InventoryLocation::where('product_id', $this->id)->where('branch_id', request()->user()->branch_id);
+    }
 }

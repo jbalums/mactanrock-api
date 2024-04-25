@@ -31,6 +31,7 @@ class ProductResource extends JsonResource
             $this->mergeWhen(!is_null($this->total_quantity), fn () => [
                 'location' => BranchResource::make($this->whenLoaded('location')),
                 'total_quantity' => $this->total_quantity,
+                'beginning_balance' => $this->beginning_balance,
                 'quantity' => $this->quantity,
                 'price' => $this->price,
                 'product_id' => $this->productId,

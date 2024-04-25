@@ -15,7 +15,7 @@ class InventoryResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id, 
+            'id' => $this->id,
             'quantity' => $this->quantity,
             'price' => $this->price,
             'batch' => $this->batch,
@@ -29,8 +29,9 @@ class InventoryResource extends JsonResource
             'receive_id' => $this->receive_id,
             'product_id' => $this->product_id,
             'inventory_location_id' => $this->inventory_location_id,
-            'account_code' => $this->account_code, 
-            'receives' => ReceiveResource::make($this->whenLoaded('receives')), 
+            'account_code' => $this->account_code,
+            'receives' => ReceiveResource::make($this->whenLoaded('receives')),
+            'product' => $this->product,
         ];
     }
 }

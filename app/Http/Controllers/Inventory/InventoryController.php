@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Inventory;
 
+use App\Http\Resources\InventoryLocationResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\InventoryResource;
 use App\Http\Resources\InventoryTransactionResource;
@@ -25,7 +26,7 @@ class InventoryController
             'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
             'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
-        return ProductResource::collection($services->getList());
+        return InventoryLocationResource::collection($services->getList());
     }
     public function itemCosting(InventoryServices $services)
     {
@@ -123,6 +124,7 @@ class InventoryController
                 'accepted_by_id' => $user->id,
                 'from_branch_id' => $user->branch_id,
                 'to_branch_id' => $user->branch_id,
+                'price' => request('price'),
                 'description' => 'updated beginning balance'
             ];
             $stock_in = $inventory_services->stockIn(request('product_id'), request('qty'), $data);

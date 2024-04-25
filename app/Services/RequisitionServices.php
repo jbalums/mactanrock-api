@@ -276,7 +276,6 @@ class RequisitionServices
                         $rd_item = RequisitionItem::query()->findOrFail($item->id);
                         $rd_item->full_filled_quantity = (int)$rd_item->request_quantity;
                         $rd_item->status = 'completed';
-                        $rd_item->save();
 
                         $data = [
                             'from_request_id' => $requisition->id,
@@ -286,7 +285,8 @@ class RequisitionServices
                             'to_branch_id' => $user->branch_id,
                             'description' => $requisition->purpose
                         ];
-                        $this->inventoryServices->stockOut($item->product_id, (int)$item->request_quantity, $data);
+                        $this->inventoryServices->stockOut($rd_item->product_id, (int)$item->request_quantity, $data, $user->branch_id);
+                        $rd_item->save();
                     }
                 }
             }
