@@ -29,6 +29,10 @@ class Product extends Model
     }
     public function inventoryLocation()
     {
-        return InventoryLocation::where('product_id', $this->id)->where('branch_id', request()->user()->branch_id);
+        return InventoryLocation::where('product_id', $this->id);
+    }
+    public function transactions()
+    {
+        return $this->hasMany(InventoryTransaction::class, 'product_id', 'id');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Inventory;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
@@ -27,6 +28,8 @@ class ProductResource extends JsonResource
             'unit_measurement' => $this->unit_measurement,
             'uom' => "{$this->unit_measurement}",
             'category_id' => $this->category_id,
+            'transactions' => $this->whenLoaded('transactions'),
+            'transactions_count' => $this->transactions->count(),
             'category' => CategoryResource::make($this->whenLoaded('category')),
             $this->mergeWhen(!is_null($this->total_quantity), fn () => [
                 'location' => BranchResource::make($this->whenLoaded('location')),

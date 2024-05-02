@@ -234,6 +234,7 @@ class InventoryServices
             'action' => $inventory->action,
             'details' => $data['description'] ?? null,
             'receive_id' => $data['receive_id'] ?? null,
+            'product_id' => $product instanceof  Product ? $product->id : $product,
         ]);
 
         return $product;
@@ -264,7 +265,8 @@ class InventoryServices
                 'to_branch_id' => $data['branch_id'],
                 'movement' => InventoryMovementType::Out,
                 'action' => $data['action'] ?? InventoryActionType::Auto,
-                'details' => $data['description'] ?? ''
+                'details' => $data['description'] ?? '',
+                'product_id' => $product instanceof  Product ? $product->id : $product,
             ]);
             /*  if($amount > 0){
                  $this->out($inventoryLocation,$amount);
@@ -304,6 +306,7 @@ class InventoryServices
         $transaction = new InventoryTransaction();
         $transaction->quantity = $data['quantity'];
         $transaction->branch_id = $data['branch_id'];
+        $transaction->product_id = $data['product_id'];
         $transaction->returned_by_user_id = $data['returned_by_user_id'] ?? null;
         $transaction->returned_by_branch_id = $data['returned_by_branch_id'] ?? null;
         $transaction->transacted_by_id = $data['transacted_by_id'] ?? request()->user()->id;
@@ -361,7 +364,8 @@ class InventoryServices
                 'price' => $data['price'],
                 'movement' => InventoryMovementType::In,
                 'action' => $data['action'] ?? InventoryActionType::Auto,
-                'details' => $data['description'] ?? ''
+                'details' => $data['description'] ?? '',
+                'product_id' => $product instanceof  Product ? $product->id : $product,
             ]);
             $inventoryLocation->increment('total_quantity', $amount);
             $inventoryLocation->increment('quantity', $amount);
@@ -398,7 +402,8 @@ class InventoryServices
                     'to_branch_id' => $data['to_branch_id'],
                     'movement' => InventoryMovementType::Out,
                     'action' => $data['action'] ?? InventoryActionType::Auto,
-                    'details' => $data['description'] ?? ''
+                    'details' => $data['description'] ?? '',
+                    'product_id' => $product instanceof  Product ? $product->id : $product,
                 ]);
             }
             $inventoryLocation->decrement('total_quantity', $amount);
