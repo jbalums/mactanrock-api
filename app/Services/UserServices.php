@@ -16,20 +16,23 @@ class UserServices
     public function getUsers(int $take = 10, ?int $branch = null)
     {
         request()->validate([
-            'column' => ['nullable',Rule::in(['firstname','middlename','lastname','username'])],
-            'direction' => ['nullable',Rule::in(['asc','desc'])],
+            'column' => ['nullable', Rule::in(['firstname', 'middlename', 'lastname', 'username'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
         ]);
 
         return User::query()->with(['branch'])
-            ->when(request('location_id'), fn($q,$location) => $q->where('branch_id', $location))
-            ->when(request('business_unit'), fn($q,$business_unit) => $q->where('business_unit', $business_unit))
-            ->when( request('keyword'),
-                function(Builder $q){
+            ->when(request('location_id'), fn ($q, $location) => $q->where('branch_id', $location))
+            ->when(request('business_unit'), fn ($q, $business_unit) => $q->where('business_unit', $business_unit))
+            ->when(
+                request('keyword'),
+                function (Builder $q) {
                     $keyword = request('keyword');
                     return $q->whereRaw("CONCAT_WS(' ',firstname,middlename,lastname,username) like '%{$keyword}%' ");
-                })
-            ->when( request()->get('column') && request()->get('direction'),
-                fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
+                }
+            )
+            ->when(
+                request()->get('column') && request()->get('direction'),
+                fn ($q) => $q->orderBy(request()->get('column'), request()->get('direction'))
             )
 
             ->latest()
@@ -52,12 +55,12 @@ class UserServices
         $user->branch_id = request()->get('branch_id');
         $user->business_unit = request()->get('division');
 
-        if(request()->hasFile('avatar')){
+        if (request()->hasFile('avatar')) {
             $user->avatar = request()->file('avatar')->store('users');
         }
-        $user->save(); 
+        $user->save();
         $last_user = User::query()->with(['branch'])->findOrfail($user->id);
-        
+
         return $last_user;
     }
 
@@ -74,7 +77,7 @@ class UserServices
         $user->branch_id = request()->get('branch_id');
         $user->business_unit = request()->get('division');
         $user->user_type = request()->get('type');
-        if(request()->hasFile('avatar')){
+        if (request()->hasFile('avatar')) {
             $user->avatar = request()->file('avatar')->store('users');
         }
         $user->save();
@@ -86,27 +89,25 @@ class UserServices
     public function updatePassword(int $id)
     {
         $user = User::query()
-            ->where('id','!=',1)
+            ->where('id', '!=', 1)
             ->findOrfail($id);
 
         $user->password = request()->get('password');
         $user->save();
-
     }
 
     /**
      * @throws ValidationException
      */
-    public function changePassword(string $password, User $user):void
+    public function changePassword(string $old_password, string $password, User $user): void
     {
-        if(!Hash::check($password,$user->password))
+        if (!Hash::check($old_password, $user->password))
             throw  ValidationException::withMessages([
                 'old_password' => 'Invalid old password'
             ]);
 
         $user->password = bcrypt($password);
 
-       $user->save();
-
+        $user->save();
     }
 }

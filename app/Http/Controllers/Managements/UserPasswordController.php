@@ -17,7 +17,7 @@ class UserPasswordController extends Controller
         ]);
 
         $user = request()->user();
-        $userServices->changePassword(request()->old_password, $user);
+        $userServices->changePassword(request()->old_password, request()->password, $user);
 
         return response()->noContent();
     }
