@@ -293,9 +293,10 @@ class InventoryServices
             'inventory_location_id' => $inventory_location->id,
         ], [
             'quantity' => $inventory_location?->quantity || 0,
-            'batch' => $user->branch_id,
+            'batch' => $this->batchGenerator($inventory_location->id),
             'receive_id' => $user->id,
             'product_id' => $inventory_location->product_id,
+            'owner_branch_id' => $user->branch_id
         ]);
     }
 
@@ -327,18 +328,18 @@ class InventoryServices
 
 
 
-    public function resolveProduct(int|Product $product, int $branch_id): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Builder|Product|int|array|null
+    public function resolveProduct(int|Product $product, int $branch_id = null)
     {
         if (!($product instanceof  Product)) {
             $product = Product::query()->findOrFail($product);
         }
 
         $user = request()->user();
-        $business_unit = $user->business_unit ?: request()->get('business_unit') ?: request()->header('business-unit') ?: null;
+        // $business_unit = $user->business_unit ?: request()->get('business_unit') ?: request()->header('business-unit') ?: null;
 
         return InventoryLocation::query()->firstOrCreate([
             'product_id' => $product->id,
-            'branch_id' => $branch_id ? $branch_id : $user->branch_id,
+            'branch_id' => $branch_id ?? $user->branch_id,
             // 'business_unit' => $business_unit
         ]);
     }
@@ -416,21 +417,61 @@ class InventoryServices
 
     public function countItemWithNoInventoryRecords()
     {
-
-        $product_ids_1 = Product::query()->get()->pluck('id');
         $user = request()->user();
-        $product_ids = InventoryLocation::query()->where('branch_id', $user->branch_id)->pluck('product_id');
-        // return ['products' => $products, 'product_ids' => $product_ids];
-        return array_diff(array($product_ids_1), array($product_ids));
+
+        $product_ids_with_location = InventoryLocation::query()
+            ->where('branch_id', $user->branch_id)
+            ->pluck('product_id');
+        $product_ids = Product::query()->whereNotIn('id', $product_ids_with_location)->pluck('id');
+
+        return $product_ids;
     }
 
     public function populateInventories()
     {
-        $products = Product::query()->get();
-        $user = request()->user();
-        foreach ($products as $product) {
-            $inventoryLocation = $this->resolveProduct($product->id, $user->branch_id);
-            $this->resolveStockInventory($inventoryLocation);
+
+        try {
+            DB::beginTransaction();
+            $user = request()->user();
+            $ids = $this->countItemWithNoInventoryRecords()[0];
+
+            $data = [];
+            foreach ($ids as $id) {
+                $data[] = ['product_id' => $id, 'branch_id' => $user->branch_id];
+            }
+            $locations_data = [];
+            foreach (array_chunk($data, 150) as $dataToInsert) {
+                foreach ($dataToInsert as $data_) {
+                    $locations_data[] = InventoryLocation::firstOrCreate($data_, $data_);
+                }
+            }
+            // $data[] = ['product_id' => $ids[0][0], 'branch_id' => $user->branch_id];
+
+
+            $inventories = [];
+
+            foreach (array_chunk($locations_data, 150) as $locations_) {
+                foreach ($locations_ as $location) {
+                    $i_data = [
+                        'inventory_location_id' => $location->id,
+                        'quantity' => $location->quantity ?? 0,
+                        'receive_id' => $user->id,
+                        'branch_id' => $user->branch_id,
+                        'product_id' => $location->product_id
+                    ];
+                    $inventories[] =  Inventory::firstOrCreate([
+                        'inventory_location_id' => $location->id,
+                        'product_id' => $location->product_id
+                    ], $i_data, $i_data);
+                }
+            }
+
+            DB::commit();
+
+            return  ['locations' => $locations_data, 'inventories' => $inventories];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
         }
     }
 }

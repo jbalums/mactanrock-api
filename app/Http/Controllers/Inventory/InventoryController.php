@@ -82,7 +82,8 @@ class InventoryController
             'column' => ['nullable', Rule::in(['name', 'description', 'quantity', 'code', 'brand'])],
             'direction' => ['nullable', Rule::in(['asc', 'desc'])]
         ]);
-        return ProductResource::collection($services->getBranchInventory());
+        // return ProductResource::collection($services->getBranchInventory());
+        return InventoryLocationResource::collection($services->getBranchInventory());
     }
 
     public function histories($id, InventoryServices $services)
@@ -160,7 +161,7 @@ class InventoryController
     }
     public function populateInventory(InventoryServices $inventoryServices)
     {
-        $inventoryServices->populateInventories();
+        return $inventoryServices->populateInventories();
     }
 
     public function dashboardData()
