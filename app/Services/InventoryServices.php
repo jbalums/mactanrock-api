@@ -188,14 +188,9 @@ class InventoryServices
     public function getLowStockCount()
     {
         return InventoryLocation::query()
-            ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select([
-                'inventory_locations.*'
-            ])->whereRaw('inventory_locations.quantity <= inventory_locations.stock_low_level')
-            ->when(
-                request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
-            )->count();
+            ->whereRaw('inventory_locations.quantity <= inventory_locations.stock_low_level')
+            ->where('inventory_locations.quantity', '>', 0)
+            ->count();
     }
 
     public function getEmptyStock()
@@ -218,14 +213,7 @@ class InventoryServices
     public function getEmptyStockCount()
     {
         return InventoryLocation::query()
-            ->join('products', 'inventory_locations.product_id', '=', 'products.id')
-            ->select([
-                'inventory_locations.*'
-            ])->where('inventory_locations.quantity', '0')
-            ->when(
-                request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
-            )
+           ->where('inventory_locations.quantity', '0')
             ->count();
     }
 
@@ -493,10 +481,21 @@ class InventoryServices
     {
         $user = request()->user();
 
-        $product_ids_with_location = InventoryLocation::query()
-            ->where('branch_id', $branch_id > 1 ? $branch_id : $user->branch_id)
-            ->pluck('product_id');
-        $count = Product::query()->whereNotIn('id', $product_ids_with_location)->pluck('id')->count();
+        $branchId = $branch_id > 1 ? $branch_id : $user->branch_id;
+
+        // $product_ids_with_location = InventoryLocation::query()
+        //     ->where('branch_id', $branch_id > 1 ? $branch_id : $user->branch_id)
+        //     ->pluck('product_id');
+        // $count = Product::query()->whereNotIn('id', $product_ids_with_location)->pluck('id')->count();
+
+
+        $count =  Product::query()
+            ->whereNotIn('id', function($query) use ($branchId) {
+                $query->select('product_id')
+                    ->from('inventory_locations')
+                    ->where('branch_id', $branchId);
+            })
+        ->count();
 
         return $count;
     }
