@@ -469,10 +469,16 @@ class InventoryServices
     {
         $user = request()->user();
 
-        $product_ids_with_location = InventoryLocation::query()
-            ->where('branch_id', $branch_id > 1 ? $branch_id : $user->branch_id)
-            ->pluck('product_id');
-        $product_ids = Product::query()->whereNotIn('id', $product_ids_with_location)->limit(500)->pluck('id');
+        $branchId = $branch_id > 1 ? $branch_id : $user->branch_id;
+
+        // $product_ids_with_location = InventoryLocation::query()
+        //     ->where('branch_id', $branch_id > 1 ? $branch_id : $user->branch_id)
+        //     ->pluck('product_id');
+        $product_ids = Product::query()->whereNotIn('id', function($query) use ($branchId) {
+            $query->select('product_id')
+                ->from('inventory_locations')
+                ->where('branch_id', $branchId);
+        })->limit(500)->pluck('id');
 
         return $product_ids;
     }
