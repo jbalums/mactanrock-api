@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'store']);
 
+
+
+Route::middleware(['auth:sanctum'])->get('/user-test', function (Request $request) {
+   return  $user = $request->user();
+   
+});
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     $user = $request->user();
     $user->load('branch');
