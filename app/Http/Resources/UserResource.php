@@ -20,7 +20,7 @@ class UserResource extends JsonResource
         $name = "{$this->firstname} {$middle} {$this->lastname}";
 
         return array_merge(parent::toArray($request), [
-            'business_unit' => getUnit($this->business_unit),
+            'business_unit' => $this->business_unit,
             'unit_code' => $this->business_unit ?? "",
             'branch' => BranchResource::make($this->whenLoaded('branch')),
             'avatar' => $this->avatar ? Storage::url($this->avatar) : "",
