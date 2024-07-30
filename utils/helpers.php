@@ -11,6 +11,7 @@ function businessUnits(): array
         'WBU' => 'Water Business Unit',
         'CBU' => 'Chemical Business Unit',
         'GBU' => 'General Business Unit',
+        'SG' => 'Support Group',
     ];
 }
 
