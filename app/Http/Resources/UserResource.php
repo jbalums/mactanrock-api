@@ -24,8 +24,8 @@ class UserResource extends JsonResource
             'unit_code' => $this->business_unit ?? "",
             'branch' => BranchResource::make($this->whenLoaded('branch')),
             'avatar' => $this->avatar ? Storage::url($this->avatar) : "",
-            'name' => trim($name),
-            'operations' => $this->operations,
+            'name' => $this->firstnam,
+           // 'operations' => $this->operations,
         ]);
     }
 }
