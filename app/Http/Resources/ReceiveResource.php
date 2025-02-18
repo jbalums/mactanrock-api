@@ -16,14 +16,15 @@ class ReceiveResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'reference_invoice_number' => $this->reference_invoice_number ?? "",
+            'reference_invoice_number' => $this->reference_invoice_number ?? '',
             'purchase_order' => $this->purchase_order,
             'status' => $this->status,
+            'branch_id' => $this->branch_id,
             'branch' => BranchResource::make($this->whenLoaded('branch')),
             'details' => ReceiveDetailResource::collection($this->whenLoaded('details')),
-            'supplier' => $this->supplier ?  SupplierResource::make($this->supplier) : NULL,
+            'supplier' => $this->supplier ? SupplierResource::make($this->supplier) : null,
             'created_at' => $this->created_at->format('M d, Y'),
-            'date_receive' => $this->date_receive?->format('M d, Y') ?? ""
+            'date_receive' => $this->date_receive?->format('M d, Y') ?? '',
         ];
     }
 }

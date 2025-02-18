@@ -13,4 +13,8 @@ class ApprovingRequisitionController extends Controller
 
         // return response()->noContent();
     }
+    public function decline(RequisitionServices $requisitionServices, int $id)
+    {
+        return $requisitionServices->declineRequisition($id);
+    }
 }

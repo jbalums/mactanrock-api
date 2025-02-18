@@ -13,7 +13,9 @@ class ReceivingController extends Controller
 {
     public function index(ReceivingService $receivingService)
     {
-        return ReceiveResource::collection($receivingService->get(request()->user()->branch_id));
+        $default_id = request()->user()->user_type == 'admin' ? null : request()->user()->branch_id;
+        $branch_id = request()->get('branch_id') ?? $default_id;
+        return ReceiveResource::collection($receivingService->get($branch_id));
     }
 
     public function store(ReceiveRequest $request, InventoryServices $inventoryServices, ReceivingService $receivingService)
@@ -26,8 +28,8 @@ class ReceivingController extends Controller
                     'receive_id' => $receive->id,
                     'expired_at' => $detail->expired_at,
                     'price' => $detail->price,
-                    'user_id' =>  $user->id,
-                    'branch_id' => $user->branch_id
+                    'user_id' => $user->id,
+                    'branch_id' => $user->branch_id,
                 ]);
             }
         }

@@ -18,12 +18,15 @@ class Receive extends Model
     }
 
     protected $casts = [
-        'status' => ReceivingStatus::class
+        'status' => ReceivingStatus::class,
     ];
 
     protected $dates = ['date_receive'];
 
-
+    public function branch(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
     public function supplier(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Supplier::class);

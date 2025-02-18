@@ -15,34 +15,36 @@ class SupplierServices
     public function getSuppliers()
     {
         request()->validate([
-            'column' => ['nullable',Rule::in(['name','code'])],
-            'direction' => ['nullable',Rule::in(['asc','desc'])],
+            'column' => ['nullable', Rule::in(['name', 'code'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
         ]);
 
         return Supplier::query()
-            ->with(['banks','contacts'])
-            ->when( request('keyword'),
-                function(Builder $q){
+            ->with(['banks', 'contacts'])
+            ->when(
+                request('keyword'),
+                function (Builder $q) {
                     $keyword = request('keyword');
                     return $q->whereRaw("CONCAT_WS(' ',name,code) like '%{$keyword}%' ");
-                })
-            ->when( request()->get('column') && request()->get('direction'),
-                fn($q) => $q->orderBy(request()->get('column'),request()->get('direction'))
+                }
             )
-            ->orderBy('name','asc')
+            ->when(
+                request()->get('column') && request()->get('direction'),
+                fn($q) => $q->orderBy(request()->get('column'), request()->get('direction'))
+            )
+            ->orderBy('name', 'asc')
             ->latest()
-            ->paginate(is_integer(request()->get('paginate')) ?? 1000000);
+            ->paginate(request('paginate', 100000));
     }
     public function create(Request $request)
     {
         $supplier = new Supplier();
         return $this->supplierData($request, $supplier);
-
     }
 
     public function update(Request $request, int $id)
     {
-        $supplier = Supplier::query()->with(['banks','contacts'])->findOrFail($id);
+        $supplier = Supplier::query()->with(['banks', 'contacts'])->findOrFail($id);
         return $this->supplierData($request, $supplier);
     }
 
@@ -52,7 +54,7 @@ class SupplierServices
         SupplierContact::query()->where('supplier_id', $id)->delete();
 
         $contacts = [];
-        foreach ($request->get('contacts') as $contact){
+        foreach ($request->get('contacts') as $contact) {
             $contacts[] = [
                 'name' => $contact['name'],
                 'email' => $contact['email'] ?? "",
@@ -70,7 +72,7 @@ class SupplierServices
         SupplierBank::query()->where('supplier_id', $id)->delete();
 
         $banks = [];
-        foreach ($request->get('banks') as $bank){
+        foreach ($request->get('banks') as $bank) {
             $banks[] = [
                 'name' => $bank['name'],
                 'account_name' => $bank['account_name'],
@@ -102,7 +104,7 @@ class SupplierServices
         $this->contacts($request, $supplier->id);
         $this->banks($request, $supplier->id);
 
-        $supplier->load(['banks','contacts']);
+        $supplier->load(['banks', 'contacts']);
 
         return $supplier;
     }

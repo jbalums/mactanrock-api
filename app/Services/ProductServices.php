@@ -28,8 +28,12 @@ class ProductServices
                 }
             )
             ->when(
+                request()->get('category_id'),
+                fn($q) => $q->where('category_id', request()->get('category_id'))
+            )
+            ->when(
                 request()->get('column') && request()->get('direction'),
-                fn ($q) => $q->orderBy(request()->get('column'), request()->get('direction'))
+                fn($q) => $q->orderBy(request()->get('column'), request()->get('direction'))
             )
             ->latest()
             ->paginate(request('paginate') ? (request('paginate') == 'all' ?  -1 : request('paginate')) : 10);

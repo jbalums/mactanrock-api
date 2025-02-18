@@ -25,16 +25,14 @@ class RequisitionRequest extends FormRequest
     public function rules()
     {
         return [
-            'project_code' => ['required','string','max:255'],
-            'account_code' => ['nullable','string','max:255'],
-            'inventory_id' => ['required','array'],
-            'purpose' => ['required','string'],
-            'inventory_id.*' => ['required',
-                Rule::exists('inventory_locations','id')/*->where(fn($q) => $q->where('branch_id','!=',$this->user()->branch_id))*/
-            ],
-            'quantity' => ['required','array'],
-            'quantity.*' => ['required','integer', 'min:1'],
-            'date_needed' => ['required','date' ,'after:yesterday']
+            'project_code' => ['required', 'string', 'max:255'],
+            'account_code' => ['nullable', 'string', 'max:255'],
+            'inventory_id' => ['required', 'array'],
+            'purpose' => ['required', 'string'],
+            'inventory_id.*' => ['required', Rule::exists('inventory_locations', 'id') /*->where(fn($q) => $q->where('branch_id','!=',$this->user()->branch_id))*/],
+            'quantity' => ['required', 'array'],
+            'quantity.*' => ['required', 'integer', 'min:1'],
+            'date_needed' => ['required', 'date'],
         ];
     }
 }

@@ -10,30 +10,19 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ReceivingService
 {
-
     public function get(?int $branch_id = null)
     {
-        return Receive::query()->with([
-            'details' => [
-                'product'
-            ],
-            'supplier'
-        ])
+        return Receive::query()
+            ->with(['branch', 'details' => ['product'], 'supplier'])
 
-            ->when(
-                request('keyword'),
-                function (Builder $q) {
-                    $keyword = request('keyword');
-                    return $q->whereRaw("CONCAT_WS(' ',purchase_order,project_name,status,account_code) like '%{$keyword}%' ");
-                }
-            )
-            ->when(
-                request('date'),
-                function (Builder $q) {
-                    return $q->where('date_receive', request('date'));
-                }
-            )
-            ->when(!is_null($branch_id), fn ($q) => $q->where('branch_id', $branch_id))
+            ->when(request('keyword'), function (Builder $q) {
+                $keyword = request('keyword');
+                return $q->whereRaw("CONCAT_WS(' ',purchase_order,project_name,status,account_code) like '%{$keyword}%' ");
+            })
+            ->when(request('date'), function (Builder $q) {
+                return $q->where('date_receive', request('date'));
+            })
+            ->when(!is_null($branch_id), fn($q) => $q->where('branch_id', $branch_id))
             ->latest()
             ->paginate(is_integer(request()->get('paginate')) ?? 1000000);
     }
@@ -69,7 +58,8 @@ class ReceivingService
 
     public function markCompleted(int $receive_id)
     {
-        $receiving = Receive::query()->with('details')
+        $receiving = Receive::query()
+            ->with('details')
             ->where('status', ReceivingStatus::Pending)
             ->findOrFail($receive_id);
         $receiving->status = ReceivingStatus::Completed;
@@ -80,10 +70,10 @@ class ReceivingService
 
     public function show(int $id)
     {
-        return Receive::query()->with([
-            'details' => [
-                'product'
-            ]
-        ])->findOrFail($id);
+        return Receive::query()
+            ->with([
+                'details' => ['product'],
+            ])
+            ->findOrFail($id);
     }
 }

@@ -18,10 +18,9 @@ class RequisitionDetail extends Model
 
     protected $guarded = [];
 
-
-    public function items(): \Illuminate\Database\Eloquent\Relations\hasMany
+    public function items()
     {
-        return $this->hasMany(RequisitionItem::class);
+        return $this->hasMany(RequisitionItem::class, 'requisition_detail_id');
     }
 
     public function location()

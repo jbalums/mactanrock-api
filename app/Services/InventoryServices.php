@@ -22,9 +22,15 @@ class InventoryServices
         return InventoryLocation::query()
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name as name', 'products.account_code as account_code',
-                'products.code as code', 'products.description as description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand as brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name as name',
+                'products.account_code as account_code',
+                'products.code as code',
+                'products.description as description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand as brand',
+                'products.category_id',
                 "products.id as productId"
             ])
             ->with([
@@ -35,7 +41,7 @@ class InventoryServices
             ])
             ->when(
                 request('location_id'),
-                fn (Builder $builder) => $builder->where('branch_id', request('location_id'))
+                fn(Builder $builder) => $builder->where('branch_id', request('location_id'))
             )
             ->when(
                 request('keyword'),
@@ -46,7 +52,7 @@ class InventoryServices
             )
             ->when(
                 request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
+                fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
             ->paginate(request('paginate', 10));
     }
@@ -59,30 +65,36 @@ class InventoryServices
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name as name', 'products.account_code as account_code',
-                'products.code as code', 'products.description as description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand as brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name as name',
+                'products.account_code as account_code',
+                'products.code as code',
+                'products.description as description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand as brand',
+                'products.category_id',
                 "products.id as productId"
             ])
             ->when(
                 request('location_id'),
-                fn (Builder $builder) => $builder->where('branch_id', request('location_id'))
+                fn(Builder $builder) => $builder->where('branch_id', request('location_id'))
             )
             ->when(
                 request('purpose') == 'production',
-                fn (Builder $builder) => $builder->whereIn('branch_id', [1])
+                fn(Builder $builder) => $builder->whereIn('branch_id', [1])
             )
             ->when(
                 request('purpose') != 'production' && request('purpose') != 'internal_use',
-                fn (Builder $builder) => $builder->where('branch_id', request('location_id') | 1)
+                fn(Builder $builder) => $builder->where('branch_id', request('location_id') | 1)
             )
             ->when(
                 request('purpose') == 'internal_use',
-                fn (Builder $builder) => $builder->where('branch_id', request()->user()->branch->id)
+                fn(Builder $builder) => $builder->where('branch_id', request()->user()->branch->id)
             )
             ->when(
                 request('by_unit'),
-                fn (Builder $builder) => $builder->where('business_unit', request('by_unit'))
+                fn(Builder $builder) => $builder->where('business_unit', request('by_unit'))
             )
             ->when(
                 request('keyword'),
@@ -93,7 +105,7 @@ class InventoryServices
             )
             ->when(
                 request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
+                fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
             ->paginate(request('paginate', 10));
     }
@@ -126,7 +138,7 @@ class InventoryServices
             ->where('branch_id', $user->branch_id)
             ->when(
                 request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
+                fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )->get();
         // ->paginate(is_integer(request('paginate')) ?  request('paginate') : -1);
     }
@@ -137,18 +149,23 @@ class InventoryServices
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name',
-                'products.code', 'products.description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name',
+                'products.code',
+                'products.description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand',
+                'products.category_id',
                 "products.id as productId"
             ])
             ->when(
                 request('location_id'),
-                fn (Builder $builder) => $builder->where('branch_id', request('location_id'))
+                fn(Builder $builder) => $builder->where('branch_id', request('location_id'))
             )
             ->when(
                 request('by_unit'),
-                fn (Builder $builder) => $builder->where('business_unit', request('by_unit'))
+                fn(Builder $builder) => $builder->where('business_unit', request('by_unit'))
             )
             ->when(
                 request('keyword'),
@@ -159,7 +176,7 @@ class InventoryServices
             )
             ->when(
                 request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
+                fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
             ->paginate(request('paginate', 10));
     }
@@ -175,14 +192,19 @@ class InventoryServices
         return InventoryLocation::query()
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name',
-                'products.code', 'products.description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name',
+                'products.code',
+                'products.description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand',
+                'products.category_id',
                 "products.id as productId"
             ])->whereRaw('inventory_locations.quantity <= inventory_locations.stock_low_level')
             ->when(
                 request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
+                fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )->get();
     }
     public function getLowStockCount()
@@ -198,14 +220,19 @@ class InventoryServices
         return InventoryLocation::query()
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name',
-                'products.code', 'products.description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name',
+                'products.code',
+                'products.description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand',
+                'products.category_id',
                 "products.id as productId"
             ])->where('inventory_locations.quantity', '0')
             ->when(
                 request('column') && request('direction'),
-                fn (Builder $builder) => $builder->orderBy(request('column'), request('direction'))
+                fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
             )
             ->get();
     }
@@ -213,7 +240,7 @@ class InventoryServices
     public function getEmptyStockCount()
     {
         return InventoryLocation::query()
-           ->where('inventory_locations.quantity', '0')
+            ->where('inventory_locations.quantity', '0')
             ->count();
     }
 
@@ -223,9 +250,14 @@ class InventoryServices
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name',
-                'products.code', 'products.description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name',
+                'products.code',
+                'products.description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand',
+                'products.category_id',
                 "products.id as productId"
             ])
             ->findOrFail($id);
@@ -241,9 +273,14 @@ class InventoryServices
             ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
             ->select([
-                'inventory_locations.*', 'products.name',
-                'products.code', 'products.description', 'products.unit_measurement',
-                'products.unit_value', 'products.brand', 'products.category_id',
+                'inventory_locations.*',
+                'products.name',
+                'products.code',
+                'products.description',
+                'products.unit_measurement',
+                'products.unit_value',
+                'products.brand',
+                'products.category_id',
                 "products.id as productId"
             ])
             ->findOrFail($id);
@@ -370,7 +407,7 @@ class InventoryServices
         $transaction->receive_id = $data['receive_id'] ?? null;
         $transaction->details = $data['details'] ?? '';
         $transaction->action = $data['action'];
-        $transaction->price = $data['price'];
+        $transaction->price = $data['price'] ?? 0;
         $transaction->movement = $data['movement'];
         $transaction->inventory_id = $inventory_id;
         $transaction->save();
@@ -411,7 +448,7 @@ class InventoryServices
                 'from_request_id' => $data['from_request_id'] ?? null,
                 'from_branch_id' => $data['from_branch_id'],
                 'to_branch_id' => $data['to_branch_id'],
-                'price' => $data['price'],
+                'price' => $data['price'] ?? $stock->price,
                 'movement' => InventoryMovementType::In,
                 'action' => $data['action'] ?? InventoryActionType::Auto,
                 'details' => $data['description'] ?? '',
@@ -436,12 +473,11 @@ class InventoryServices
             DB::beginTransaction();
             $inventoryLocation = $this->resolveProduct($product, $branch_id);
 
-            if ($inventoryLocation->total_quantity > 0 || $inventoryLocation->quantity > 0) {
                 $stock = $this->resolveStockInventory($inventoryLocation);
 
                 $amount = $amount;
                 $stock->decrement('quantity', $amount);
-                $this->transaction($stock->id, [
+                $transactionData = [
                     'quantity' => $amount,
                     'branch_id' => $inventoryLocation->branch_id,
                     'transacted_by_id' => $data['transacted_by_id'],
@@ -453,12 +489,12 @@ class InventoryServices
                     'movement' => InventoryMovementType::Out,
                     'action' => $data['action'] ?? InventoryActionType::Auto,
                     'details' => $data['description'] ?? '',
-                    'product_id' => $product instanceof  Product ? $product->id : $product,
-                ]);
-            }
+                    'product_id' => $stock->product_id,
+                ];
+                $this->transaction($stock->id, $transactionData);
             $inventoryLocation->decrement('total_quantity', $amount);
             DB::commit();
-            return  $inventoryLocation;
+            return  ['$transactionData'=>$transactionData];
         } catch (\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
@@ -474,7 +510,7 @@ class InventoryServices
         // $product_ids_with_location = InventoryLocation::query()
         //     ->where('branch_id', $branch_id > 1 ? $branch_id : $user->branch_id)
         //     ->pluck('product_id');
-        $product_ids = Product::query()->whereNotIn('id', function($query) use ($branchId) {
+        $product_ids = Product::query()->whereNotIn('id', function ($query) use ($branchId) {
             $query->select('product_id')
                 ->from('inventory_locations')
                 ->where('branch_id', $branchId);
@@ -496,12 +532,12 @@ class InventoryServices
 
 
         $count =  Product::query()
-            ->whereNotIn('id', function($query) use ($branchId) {
+            ->whereNotIn('id', function ($query) use ($branchId) {
                 $query->select('product_id')
                     ->from('inventory_locations')
                     ->where('branch_id', $branchId);
             })
-        ->count();
+            ->count();
 
         return $count;
     }
