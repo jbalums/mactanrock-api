@@ -16,7 +16,7 @@ class Requisition extends Model
         return $this->display_name;
     }
 
-    protected $dates = ['needed_at', 'date_approved'];
+    protected $dates = ['needed_at', 'date_approved', 'date_declined'];
 
 
     public function details(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -32,6 +32,10 @@ class Requisition extends Model
     public function acceptor()
     {
         return $this->belongsTo(User::class, 'accepted_by_id');
+    }
+    public function declinedBy()
+    {
+        return $this->belongsTo(User::class, 'declined_by_id');
     }
 
     public function location()
