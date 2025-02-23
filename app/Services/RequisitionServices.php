@@ -10,6 +10,7 @@ use App\Models\Requisition;
 use App\Models\RequisitionDetail;
 use App\Models\RequisitionItem;
 use App\Http\Resources\RequisitionResource;
+use App\Models\InventoryTransaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -343,6 +344,47 @@ class RequisitionServices
         }
     }
 
+    public function deleteRequisition(int $id)
+    {
+        try {
+            DB::beginTransaction();
+            $requisition = Requisition::query()->findOrFail($id);
+            $requisition->load('details');
+            if($requisition->status == 'completed'){
+                foreach($requisition->transactions as $transaction){
+                    $inventory = $transaction->inventory;
+                    if($transaction->movement == 'out'){
+                        $inventory->quantity = (int) $inventory->quantity + (int) $transaction->quantity;
+                        $inventory->save();
+                        
+                        $inventory_location = $inventory->location;
+                        $inventory_location->total_quantity = (int) $inventory_location->total_quantity + (int) $transaction->quantity;
+                        $inventory_location->save();
+                    }else{
+                        $inventory->quantity = (int) $inventory->quantity - (int) $transaction->quantity;
+                        $inventory->save();
+                        
+                        $inventory_location = $inventory->location;
+                        $inventory_location->total_quantity = (int) $inventory_location->total_quantity - (int) $transaction->quantity;
+                        $inventory_location->save();
+                    }
+                    $transaction->delete();
+                }
+            }
+            foreach ($requisition->details as $detail) {
+                $rd = RequisitionDetail::query()->findOrFail($detail->id);
+                $rd->items()->delete();
+                $rd->delete();
+            }
+            $requisition->delete();
+            DB::commit();
+            return $requisition;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response(['error' => $e->getMessage(), 'data' => request()->all(), 'type' => 'error', 'message' => 'Error processing your action.'], 500);
+        }
+    }
+
     public function updateIssuanceStatus(int $id, string $issuance_status, string $remarks = "")
     {
         $requisition = Requisition::query()->findOrFail($id);
@@ -354,6 +396,8 @@ class RequisitionServices
 
         return $requisition;
     }
+
+    
     public function saveIssuance(int $id)
     {
         try {

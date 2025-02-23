@@ -17,4 +17,8 @@ class ApprovingRequisitionController extends Controller
     {
         return $requisitionServices->declineRequisition($id);
     }
+    public function delete(RequisitionServices $requisitionServices, int $id)
+    {
+        return $requisitionServices->deleteRequisition($id);
+    }
 }

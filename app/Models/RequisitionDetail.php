@@ -32,4 +32,9 @@ class RequisitionDetail extends Model
     {
         return $this->belongsTo(Requisition::class);
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(InventoryTransaction::class, 'from_request_id'); 
+    }
 }

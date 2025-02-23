@@ -62,3 +62,4 @@ Route::get('/dashboard-data', [InventoryController::class, 'dashboardData']);
 Route::get('/notifications', [RequisitionController::class, 'getNotifications']);
 Route::delete('requisition/{id}', [RequisitionController::class,'deleteRequest']);
 Route::post('requisition-decline/{id}', [ApprovingRequisitionController::class,'decline']);
+Route::post('requisition-delete/{id}', [ApprovingRequisitionController::class,'delete']);
