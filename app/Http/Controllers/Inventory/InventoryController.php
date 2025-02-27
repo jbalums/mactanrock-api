@@ -133,7 +133,6 @@ class InventoryController
             'data' => InventoryTransactionResource::collection($histories->load(
                 ['receive', 'request', 'inventory']
             )),
-            'inventory' => $inventoryIDS
         ]);
         // return  $inventory;//
         // return InventoryResource::collection($services->getHistories($id));
