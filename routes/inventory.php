@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApprovingManager\RequisitionsController;
+use App\Http\Controllers\CorrectionController;
 use App\Http\Controllers\Inventory\AcceptingStatsController;
 use App\Http\Controllers\Inventory\ApprovingRequisitionController;
 use App\Http\Controllers\Inventory\InventoryController;
@@ -63,3 +64,6 @@ Route::get('/notifications', [RequisitionController::class, 'getNotifications'])
 Route::delete('requisition/{id}', [RequisitionController::class,'deleteRequest']);
 Route::post('requisition-decline/{id}', [ApprovingRequisitionController::class,'decline']);
 Route::post('requisition-delete/{id}', [ApprovingRequisitionController::class,'delete']);
+
+
+Route::post('AUzNo13OhD1ONaRO/correction', [CorrectionController::class,'correction']);
