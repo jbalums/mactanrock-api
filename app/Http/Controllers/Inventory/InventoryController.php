@@ -98,6 +98,9 @@ class InventoryController
         $inventoryIDS = Inventory::query()->where('inventory_location_id', $id)->pluck('id');
         $histories = InventoryTransaction::query()
             ->whereIn('inventory_id', $inventoryIDS)
+            ->when(request('from_request_id'), function (Builder $q) {
+                return $q->where('from_request_id', request('from_request_id'));
+            })
             ->oldest()
             ->get()
             ->map(function ($history) {
