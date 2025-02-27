@@ -15,7 +15,7 @@ class CorrectionController extends Controller
     {
         // product_id
         // qty
-        // request_account_code
+        // request_account_code // CHANGED TO ID
         // movement
         // return request()->all();
 
@@ -23,7 +23,7 @@ class CorrectionController extends Controller
         try {
             DB::beginTransaction();
 
-            $requisition = Requisition::query()->where('account_code', request('request_account_code'))->first();
+            $requisition = Requisition::query()->findOrFail(request('id'));
             $inventory_location = InventoryLocation::query()->where('branch_id', $requisition->branch_id)->where('product_id', request('product_id'))->first();
 
             $inventory = Inventory::query()->where('inventory_location_id', $inventory_location->id)->where('product_id', request('product_id'))->orderBy('id', 'DESC')->first();
