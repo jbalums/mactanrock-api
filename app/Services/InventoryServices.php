@@ -41,7 +41,16 @@ class InventoryServices
             ])
             ->when(
                 request('location_id'),
-                fn(Builder $builder) => $builder->where('branch_id', request('location_id'))
+                function(Builder $builder){
+                    if((request('location_id') == 1 || request('location_id') == 2) && request('request_order') == 'yes'){
+                        return $builder
+                        ->where('branch_id', request('location_id'))
+                        ->where('code', 'like', request('location_id') == 1 ? '%WHSE%' : '%BULA%');
+                    }else{
+                        return $builder->where('branch_id', request('location_id'));
+                    }
+                    
+                }
             )
             ->when(
                 request('keyword'),
