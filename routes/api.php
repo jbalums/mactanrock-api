@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('', function(){
+    return 'API WORKS';
+});
+
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'store']);
 
 
