@@ -133,7 +133,8 @@ class RequisitionServices
             'details' => [
                 'location',
                 'items' => [
-                    'product'
+                    'product',
+                    'inventory'
                 ]
             ],
             'requester'

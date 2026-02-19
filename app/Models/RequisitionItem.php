@@ -18,9 +18,21 @@ class RequisitionItem extends Model
 
     protected $guarded = [];
 
+    public function requisitionDetail()
+    {
+        return $this->hasOne(RequisitionDetail::class, 'id', 'requisition_detail_id');
+    }
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+    public function inventory()
+    {
+        return $this->hasOne(InventoryLocation::class, 'product_id', 'product_id')
+            ->when(
+                $this->requisitionDetail?->location_id,
+                fn($q, $locationId) => $q->where('location_id', $locationId)
+            );
     }
 }

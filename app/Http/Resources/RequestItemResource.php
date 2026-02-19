@@ -17,6 +17,7 @@ class RequestItemResource extends JsonResource
         return [
             'id' => $this->id,
             'product' => ProductResource::make($this->whenLoaded('product')),
+            'inventory' => $this->whenLoaded('inventory') ? $this->inventory : null,
             'request_quantity' => $this->request_quantity,
             'full_filled_quantity' => $this->full_filled_quantity,
             'status' => $this->status,
