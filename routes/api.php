@@ -21,8 +21,6 @@ Route::get('', function(){
 
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'store']);
 
-
-
 Route::middleware(['auth:sanctum'])->get('/user-test', function (Request $request) {
    return  $user = $request->user();
    
@@ -41,6 +39,8 @@ Route::middleware(['guest'])->group(function () {
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [\App\Http\Controllers\LogoutController::class, 'store']);
+
     require  __DIR__ . '/management.php';
 
     Route::prefix('inventory')->group(function () {
