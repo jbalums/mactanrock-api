@@ -21,15 +21,14 @@ class ReceivingController extends Controller
     public function store(ReceiveRequest $request, InventoryServices $inventoryServices, ReceivingService $receivingService)
     {
         $receive = $receivingService->create($request);
-        $user = request()->user();
         if ($receive->status === ReceivingStatus::Completed) {
             foreach ($receive->details as $detail) {
                 $inventoryServices->in($detail->product_id, $detail->quantity, [
                     'receive_id' => $receive->id,
                     'expired_at' => $detail->expired_at,
                     'price' => $detail->price,
-                    'user_id' => $user->id,
-                    'branch_id' => $user->branch_id,
+                    'user_id' => request()->user()->id,
+                    'branch_id' => $receive->branch_id,
                 ]);
             }
         }

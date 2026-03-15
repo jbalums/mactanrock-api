@@ -45,7 +45,7 @@ class ProjectPlantOrdersController extends Controller
             foreach ($product_ids as $key => $id) {
                 $amt = (int) $qtys[$key];
                 if ($amt > 0) {
-                    $stockOut = $inventory_services->stockOut((int) $id, $amt, $data);
+                    $stockOut = $inventory_services->stockOut((int) $id, $amt, $data, $user->branch_id);
                     $this->ensureInventoryOperationSucceeded($stockOut, 'qty');
                     $stock_outs[] = $stockOut;
                     $request_item = RequisitionItem::query()->findOrFail($requisition_item_ids[$key]);
@@ -97,7 +97,7 @@ class ProjectPlantOrdersController extends Controller
             foreach ($product_ids as $key => $id) {
                 $amt = (int) $qtys[$key];
                 if ($amt > 0) {
-                    $stockOut = $inventory_services->stockOut((int) $id, $amt, $dataOut);
+                    $stockOut = $inventory_services->stockOut((int) $id, $amt, $dataOut, $user->branch_id);
                     $this->ensureInventoryOperationSucceeded($stockOut, 'qty');
                     $stock_outs[] = $stockOut;
 
