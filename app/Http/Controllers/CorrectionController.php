@@ -8,6 +8,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Requisition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CorrectionController extends Controller
 {
@@ -44,11 +45,25 @@ class CorrectionController extends Controller
             $inventory_transaction->from_request_id = $requisition->id;
             $inventory_transaction->save();
 
-            if (request('movement') == 'in') {
-                $inventory_location->total_quantity = $inventory_location->total_quantity + request('qty');
-            } else {
-                $inventory_location->total_quantity = $inventory_location->total_quantity - request('qty');
+            $delta = request('movement') == 'in'
+                ? (int) request('qty')
+                : -((int) request('qty'));
+
+            $nextInventoryQuantity = (int) $inventory->quantity + $delta;
+            $nextLocationQuantity = (int) $inventory_location->quantity + $delta;
+            $nextLocationTotalQuantity = (int) $inventory_location->total_quantity + $delta;
+
+            if ($nextInventoryQuantity < 0 || $nextLocationQuantity < 0 || $nextLocationTotalQuantity < 0) {
+                throw ValidationException::withMessages([
+                    'qty' => ['Insufficient stock quantity for this correction.'],
+                ]);
             }
+
+            $inventory->quantity = $nextInventoryQuantity;
+            $inventory->save();
+
+            $inventory_location->quantity = $nextLocationQuantity;
+            $inventory_location->total_quantity = $nextLocationTotalQuantity;
             $inventory_location->save();
             DB::commit();
             return ['$requisition' => $requisition, '$inventory_location' => $inventory_location, '$inventory' => $inventory];
