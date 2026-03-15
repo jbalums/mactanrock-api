@@ -32,7 +32,7 @@ class RequisitionItem extends Model
         return $this->hasOne(InventoryLocation::class, 'product_id', 'product_id')
             ->when(
                 $this->requisitionDetail?->location_id,
-                fn($q, $locationId) => $q->where('location_id', $locationId)
+                fn($q, $locationId) => $q->where('branch_id', $locationId)
             );
     }
 }

@@ -12,6 +12,7 @@ use App\Models\InventoryLocation;
 use Illuminate\Database\Eloquent\Builder;
 use App\Events\RequestOrderEvents;
 use App\Http\Resources\InventoryLocationResource;
+use Illuminate\Validation\ValidationException;
 
 class InventoryServices
 {
@@ -117,9 +118,8 @@ class InventoryServices
             )
             ->paginate(request('paginate', 10));
     }
-    public function getItemCosting()
+    public function getItemCosting(?int $branchId = null)
     {
-        $user = request()->user();
         return InventoryLocation::query()
             // ->with(['location'])
             ->join('products', 'inventory_locations.product_id', '=', 'products.id')
@@ -143,7 +143,10 @@ class InventoryServices
                     return $q->where('products.category_id', $category_id);
                 }
             )
-            ->where('branch_id', $user->branch_id)
+            ->when(
+                $branchId !== null,
+                fn(Builder $q) => $q->where('inventory_locations.branch_id', $branchId)
+            )
             ->when(
                 request('column') && request('direction'),
                 fn(Builder $builder) => $builder->orderBy(request('column'), request('direction'))
@@ -484,13 +487,20 @@ class InventoryServices
         int $branch_id = 0
     ) {
         try {
+            if ($amount === 0) {
+                throw ValidationException::withMessages([
+                    'correction_amount' => ['Correction amount must not be zero.'],
+                ]);
+            }
+
             $inventoryLocation = $this->resolveProduct($product, $branch_id);
 
             $stock = $this->resolveStockInventory($inventoryLocation);
-            $amount = $amount;
-            $stock->increment('quantity', $amount);
+            $delta = $amount;
+
+            $this->adjustInventoryQuantity($stock, $delta);
             $this->transaction($stock->id, [
-                'quantity' => abs($amount),
+                'quantity' => abs($delta),
                 'branch_id' => $inventoryLocation->branch_id,
                 'transacted_by_id' => $data['transacted_by_id'],
                 'accepted_by_id' => $data['accepted_by_id'],
@@ -498,14 +508,14 @@ class InventoryServices
                 'from_branch_id' => $data['from_branch_id'],
                 'to_branch_id' => $data['to_branch_id'],
                 'price' => $stock->price,
-                'movement' => $amount > 0 ? InventoryMovementType::In : InventoryMovementType::Out,
+                'movement' => $delta > 0 ? InventoryMovementType::In : InventoryMovementType::Out,
                 'action' => InventoryActionType::Manual,
                 'details' => $data['correction_reason'],
                 'product_id' => $product instanceof  Product ? $product->id : $product,
             ]);
-            $inventoryLocation->increment('total_quantity', $stock->total_quantity + $amount);
-            $inventoryLocation->increment('quantity', $stock->total_quantity + $amount);
-            return InventoryLocationResource::make($inventoryLocation);
+            $this->adjustInventoryLocationQuantities($inventoryLocation, $delta);
+
+            return InventoryLocationResource::make($inventoryLocation->fresh());
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -515,12 +525,17 @@ class InventoryServices
     {
         try {
             DB::beginTransaction();
+            if ($amount <= 0) {
+                throw ValidationException::withMessages([
+                    'quantity' => ['Quantity must be greater than zero.'],
+                ]);
+            }
+
             $inventoryLocation = $this->resolveProduct($product, $branch_id);
 
             $stock = $this->resolveStockInventory($inventoryLocation);
 
-            $amount = $amount;
-            $stock->decrement('quantity', $amount);
+            $this->adjustInventoryQuantity($stock, -$amount);
             $transactionData = [
                 'quantity' => $amount,
                 'branch_id' => $inventoryLocation->branch_id,
@@ -536,13 +551,43 @@ class InventoryServices
                 'product_id' => $stock->product_id,
             ];
             $this->transaction($stock->id, $transactionData);
-            $inventoryLocation->decrement('total_quantity', $amount);
+            $this->adjustInventoryLocationQuantities($inventoryLocation, -$amount);
             DB::commit();
             return  ['$transactionData' => $transactionData];
         } catch (\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
         }
+    }
+
+    private function adjustInventoryQuantity(Inventory $inventory, int $delta): void
+    {
+        $nextQuantity = (int) $inventory->quantity + $delta;
+
+        if ($nextQuantity < 0) {
+            throw ValidationException::withMessages([
+                'quantity' => ['Insufficient stock quantity for this operation.'],
+            ]);
+        }
+
+        $inventory->quantity = $nextQuantity;
+        $inventory->save();
+    }
+
+    private function adjustInventoryLocationQuantities(InventoryLocation $inventoryLocation, int $delta): void
+    {
+        $nextTotalQuantity = (int) $inventoryLocation->total_quantity + $delta;
+        $nextQuantity = (int) $inventoryLocation->quantity + $delta;
+
+        if ($nextTotalQuantity < 0 || $nextQuantity < 0) {
+            throw ValidationException::withMessages([
+                'quantity' => ['Insufficient stock quantity for this operation.'],
+            ]);
+        }
+
+        $inventoryLocation->total_quantity = $nextTotalQuantity;
+        $inventoryLocation->quantity = $nextQuantity;
+        $inventoryLocation->save();
     }
 
     public function countItemWithNoInventoryRecords($branch_id = 0)

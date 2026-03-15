@@ -489,11 +489,11 @@ class RequisitionServices
                                 'from_request_id' => $requisition->id,
                                 'transacted_by_id' => $user->id,
                                 'accepted_by_id' => $user->id,
-                                'from_branch_id' => 1,
+                                'from_branch_id' => $detail->location_id,
                                 'to_branch_id' => $requisition->branch_id,
                                 'description' => $requisition->purpose . ' item issuance'
                             ];
-                            $stock_out = $this->inventoryServices->stockOut($item->product_id, $issued_qty, $dataOut);
+                            $stock_out = $this->inventoryServices->stockOut($item->product_id, $issued_qty, $dataOut, $detail->location_id);
                         }
 
 
@@ -539,7 +539,7 @@ class RequisitionServices
                             'transacted_by_id' => $user->id,
                             'from_request_id' => $requisition->id,
                             'accepted_by_id' => $user->id,
-                            'from_branch_id' => 1,
+                            'from_branch_id' => $detail->location_id,
                             'to_branch_id' => $user->branch_id,
                             'description' => $requisition->purpose . ' received issuance'
                         ];

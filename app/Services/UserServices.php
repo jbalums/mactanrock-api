@@ -92,7 +92,13 @@ class UserServices
             ->where('id', '!=', 1)
             ->findOrfail($id);
 
-        $user->password = request()->get('password');
+        $user->password = bcrypt(request()->get('password'));
+        $user->save();
+    }
+
+    public function resetPassword(User $user, string $password): void
+    {
+        $user->password = bcrypt($password);
         $user->save();
     }
 

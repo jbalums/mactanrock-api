@@ -18,10 +18,8 @@ class PasswordController extends Controller
         ]);
         $user = $request->user();
 
-        $userServices->changePassword($request->password,$user);
+        $userServices->changePassword($request->old_password, $request->password, $user);
 
-        return response()->json(['msg' => 'Password  reset'],200);
-
-
+        return response()->noContent();
     }
 }

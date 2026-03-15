@@ -1,3 +1,33 @@
+## MRII API Setup
+
+This repository is the Laravel API for the MRII inventory SPA in `/reactjs-inventory`.
+
+### Local backend setup
+
+1. Copy [mrii-api/.env.example](/Users/joelbaluma/personals/mrii/mrii-api/.env.example) to `.env`.
+2. Install dependencies with `composer install`.
+3. Generate an app key with `php artisan key:generate`.
+4. Configure `DB_*`, `APP_URL`, and `FRONTEND_URL` in `.env`.
+5. Run migrations and seed baseline data with `php artisan migrate --seed`.
+6. Start the API with `php artisan serve --host=127.0.0.1 --port=8000`.
+
+### Local frontend setup
+
+1. Copy [reactjs-inventory/.env.example](/Users/joelbaluma/personals/mrii/reactjs-inventory/.env.example) to `reactjs-inventory/.env`.
+2. Install dependencies in `reactjs-inventory` with `npm install`.
+3. Confirm `VITE_BACKEND_URL` points to the Laravel API, including the `/api` suffix.
+4. Start the SPA with `npm run dev`.
+
+### Test baseline
+
+- The backend PHPUnit suite is configured to use in-memory sqlite for tests.
+- Token-auth baseline tests live in:
+  - [ApiLoginTest.php](/Users/joelbaluma/personals/mrii/mrii-api/tests/Feature/Auth/ApiLoginTest.php)
+  - [ApiUserTest.php](/Users/joelbaluma/personals/mrii/mrii-api/tests/Feature/Auth/ApiUserTest.php)
+- The old Breeze-only auth tests are intentionally skipped until auth is unified around one supported flow.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">

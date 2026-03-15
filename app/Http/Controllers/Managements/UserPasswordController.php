@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Managements;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Validation\Rules;
 
@@ -12,12 +13,11 @@ class UserPasswordController extends Controller
     public function update(UserServices $userServices, int $id)
     {
         request()->validate([
-            'old_password' => ['required', 'string'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = request()->user();
-        $userServices->changePassword(request()->old_password, request()->password, $user);
+        $user = User::query()->findOrFail($id);
+        $userServices->resetPassword($user, request()->password);
 
         return response()->noContent();
     }

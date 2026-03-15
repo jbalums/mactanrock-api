@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserType;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -18,11 +20,18 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->name(),
+            'firstname' => fake()->firstName(),
+            'lastname' => fake()->lastName(),
+            'middlename' => fake()->optional()->firstName() ?? '',
+            'contact' => fake()->numerify('09#########'),
+            'user_type' => UserType::EMPLOYEE->value,
             'email' => fake()->safeEmail(),
+            'username' => fake()->unique()->userName(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
+            'branch_id' => null,
+            'business_unit' => null,
         ];
     }
 
