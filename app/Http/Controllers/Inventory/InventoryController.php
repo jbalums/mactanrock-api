@@ -119,7 +119,7 @@ class InventoryController
             ->where('movement', 'in')
             ->get();
         $histories->load(['inventory', 'inventory.receives', 'receive', 'request']);
-        return response(['data' => InventoryTransactionResource::collection($histories), 'histories' => $histories]);
+        return response(['r' => $branchId, 'data' => InventoryTransactionResource::collection($histories), 'histories' => $histories]);
         // return ProductResource::collection($services->getItemCosting());
     }
 
