@@ -562,18 +562,20 @@ class InventoryServices
 
     private function adjustInventoryQuantity(Inventory $inventory, int $delta): void
     {
-        $nextQuantity = (int) $inventory->quantity + $delta;
-        $nextTotalQuantity = (int) $inventory->total_quantity + $delta;
+        $nextInventoryLocation = InventoryLocation::query()->findOrFail($inventory->inventory_location_id);
 
-        if ($nextTotalQuantity < 0 || $nextQuantity < 0) {
+        $nextQuantity = (int) $nextInventoryLocation->quantity + $delta;
+        $nextTotalQuantity = (int) $nextInventoryLocation->total_quantity + $delta;
+
+        if ($nextTotalQuantity < 0) {
             throw ValidationException::withMessages([
                 'quantity' => ['Insufficient stock quantity for this operation.'],
             ]);
         }
 
-        $inventory->total_quantity = $nextTotalQuantity;
-        $inventory->quantity = $nextQuantity;
-        $inventory->save();
+        $nextInventoryLocation->total_quantity = $nextTotalQuantity;
+        $nextInventoryLocation->quantity = $nextQuantity;
+        $nextInventoryLocation->save();
     }
 
     private function adjustInventoryLocationQuantities(InventoryLocation $inventoryLocation, int $delta): void
@@ -581,7 +583,7 @@ class InventoryServices
         $nextTotalQuantity = (int) $inventoryLocation->total_quantity + $delta;
         $nextQuantity = (int) $inventoryLocation->quantity + $delta;
 
-        if ($nextTotalQuantity < 0 || $nextQuantity < 0) {
+        if ($nextTotalQuantity < 0) {
             throw ValidationException::withMessages([
                 'quantity' => ['Insufficient stock quantity for this operation.'],
             ]);
