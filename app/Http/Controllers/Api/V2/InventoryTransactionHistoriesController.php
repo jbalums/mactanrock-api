@@ -21,6 +21,10 @@ class InventoryTransactionHistoriesController extends Controller
             ->where('product_id', $request->integer('product_id'))
             ->where('branch_id', $request->user()->branch_id);
 
+        if ($request->filled('keyword')) {
+            $this->applyKeywordFilter($query, (string) $request->input('keyword'));
+        }
+
         $this->applySorting($query, $request);
 
         $priorBalance = $this->quantityBalanceBeforePage($query, ($page - 1) * $perPage);
@@ -76,5 +80,30 @@ class InventoryTransactionHistoriesController extends Controller
 
         $query->orderBy($sortMap[$sortColumn], $sortDirection)
             ->orderBy('inventory_transactions.id', $sortDirection);
+    }
+
+    private function applyKeywordFilter(Builder $query, string $keyword): void
+    {
+        $term = '%' . $keyword . '%';
+
+        $query->where(function (Builder $query) use ($term) {
+            $query
+                ->where('inventory_transactions.details', 'like', $term)
+                ->orWhere('inventory_transactions.action', 'like', $term)
+                ->orWhere('inventory_transactions.movement', 'like', $term)
+                ->orWhereHas('request', function (Builder $requestQuery) use ($term) {
+                    $requestQuery
+                        ->where('project_code', 'like', $term)
+                        ->orWhere('account_code', 'like', $term)
+                        ->orWhere('purpose', 'like', $term)
+                        ->orWhere('status', 'like', $term)
+                        ->orWhere('project_name', 'like', $term);
+                })
+                ->orWhereHas('receive', function (Builder $receiveQuery) use ($term) {
+                    $receiveQuery
+                        ->where('purchase_order', 'like', $term)
+                        ->orWhere('reference_invoice_number', 'like', $term);
+                });
+        });
     }
 }

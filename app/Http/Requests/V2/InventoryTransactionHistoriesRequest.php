@@ -25,6 +25,7 @@ class InventoryTransactionHistoriesRequest extends FormRequest
 
         return [
             'product_id' => ['required', 'integer', 'exists:products,id'],
+            'keyword' => ['nullable', 'string', 'max:255'],
             'page' => ['nullable', 'integer', 'min:1'],
             'paginate' => ['nullable', 'integer', 'min:1', 'max:100'],
             'sort_by' => ['nullable', Rule::in($sortableColumns)],

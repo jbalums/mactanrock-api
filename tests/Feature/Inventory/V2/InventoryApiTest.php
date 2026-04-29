@@ -174,13 +174,33 @@ class InventoryApiTest extends TestCase
             ->assertJsonPath('data.2.quantity', 1);
     }
 
+    public function test_transaction_histories_supports_keyword_search(): void
+    {
+        $branch = $this->createBranch('Keyword Branch');
+        $user = $this->createUser($branch, UserType::WAREHOUSE_MAN->value);
+        $product = $this->createProduct(['name' => 'Keyword Product']);
+        [, $inventory] = $this->seedInventory($product, $branch, $user, 10, 75);
+
+        $matching = $this->createInventoryTransaction($inventory->id, $product->id, $branch->id, $user->id, 'in', 2, 'keyword alpha');
+        $this->createInventoryTransaction($inventory->id, $product->id, $branch->id, $user->id, 'out', 1, 'ordinary note');
+
+        Sanctum::actingAs($user);
+
+        $this->getJson("/api/v2/inventory/transaction-histories?product_id={$product->id}&keyword=alpha&paginate=10")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $matching->id)
+            ->assertJsonPath('data.0.details', 'keyword alpha');
+    }
+
     private function createInventoryTransaction(
         int $inventoryId,
         int $productId,
         int $branchId,
         int $userId,
         string $movement,
-        int $quantity
+        int $quantity,
+        string $details = 'v2 transaction history test'
     ): InventoryTransaction {
         $transaction = new InventoryTransaction();
         $transaction->quantity = $quantity;
@@ -189,7 +209,7 @@ class InventoryApiTest extends TestCase
         $transaction->transacted_by_id = $userId;
         $transaction->accepted_by_id = $userId;
         $transaction->movement = $movement;
-        $transaction->details = 'v2 transaction history test';
+        $transaction->details = $details;
         $transaction->action = 'auto';
         $transaction->inventory_id = $inventoryId;
         $transaction->save();
