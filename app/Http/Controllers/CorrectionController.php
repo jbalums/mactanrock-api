@@ -61,11 +61,11 @@ class CorrectionController extends Controller
             $nextLocationQuantity = (int) $inventory_location->quantity + $delta;
             $nextLocationTotalQuantity = (int) $inventory_location->total_quantity + $delta;
 
-            if ($nextInventoryQuantity < 0 || $nextLocationQuantity < 0 || $nextLocationTotalQuantity < 0) {
-                throw ValidationException::withMessages([
-                    'qty' => ['Insufficient stock quantity for this correction.'],
-                ]);
-            }
+            // if ($nextInventoryQuantity < 0 || $nextLocationQuantity < 0 || $nextLocationTotalQuantity < 0) {
+            //     throw ValidationException::withMessages([
+            //         'qty' => ['Insufficient stock quantity for this correction.'],
+            //     ]);
+            // }
 
             $inventory->quantity = $nextInventoryQuantity;
             $inventory->save();
