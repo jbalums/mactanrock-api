@@ -13,8 +13,8 @@ class RequisitionServices
     public function paginateIndex(RequisitionIndexRequest $request): LengthAwarePaginator
     {
         return Requisition::query()
-            ->with(['requester.branch', 'acceptor.branch', 'location', 'declinedBy.branch', 'transactions', 'details'])
-            // ->withExists('transactions as has_inventory_transactions')
+            ->with(['requester.branch', 'acceptor.branch', 'location', 'declinedBy.branch'])
+            ->withCount('transactions as inventory_transactions_count')
             ->when(
                 $request->filled('keyword'),
                 fn(Builder $query) => $this->applyKeywordFilter($query, (string) $request->input('keyword'))

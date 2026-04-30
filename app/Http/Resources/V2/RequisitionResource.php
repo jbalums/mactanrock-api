@@ -29,7 +29,7 @@ class RequisitionResource extends JsonResource
             'remarks' => $this->remarks,
             'issuance_status' => $this->issuance_status,
             'purpose' => $this->purpose,
-            'inventory_transactions' => $this->transactions,
+            'has_inventory_transactions' => ((int) ($this->inventory_transactions_count ?? 0)) > 0,
             'accepted_by' => UserResource::make($this->whenLoaded('acceptor')),
             'declined_by' => $this->when(
                 $this->relationLoaded('declinedBy') && $this->declinedBy,
