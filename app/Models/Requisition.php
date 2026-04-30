@@ -45,6 +45,6 @@ class Requisition extends Model
 
     public function transactions()
     {
-        return $this->hasMany(InventoryTransaction::class, 'from_request_id'); 
+        return $this->hasMany(InventoryTransaction::class, 'from_request_id');
     }
 }

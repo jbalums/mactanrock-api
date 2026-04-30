@@ -29,10 +29,11 @@ class RequisitionResource extends JsonResource
             'remarks' => $this->remarks,
             'issuance_status' => $this->issuance_status,
             'purpose' => $this->purpose,
+            'inventory_transactions' => $this->transactions,
             'accepted_by' => UserResource::make($this->whenLoaded('acceptor')),
             'declined_by' => $this->when(
                 $this->relationLoaded('declinedBy') && $this->declinedBy,
-                fn () => UserResource::make($this->declinedBy)
+                fn() => UserResource::make($this->declinedBy)
             ),
         ];
     }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Requisition\V2;
 
 use App\Enums\UserType;
+use App\Models\InventoryTransaction;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -98,5 +99,48 @@ class RequisitionApiTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $approved->id)
             ->assertJsonPath('data.0.project_code', 'APR-001');
+    }
+
+    public function test_v2_requisition_list_includes_has_inventory_transactions_flag(): void
+    {
+        $branch = $this->createBranch('Txn Branch');
+        $user = $this->createUser($branch, UserType::EMPLOYEE->value);
+
+        $withTransactions = $this->createRequisition($user, [
+            'project_name' => 'With Transactions',
+            'project_code' => 'TXN-001',
+        ]);
+        $withoutTransactions = $this->createRequisition($user, [
+            'project_name' => 'Without Transactions',
+            'project_code' => 'TXN-002',
+        ]);
+
+        $transaction = new InventoryTransaction();
+        $transaction->quantity = 5;
+        $transaction->branch_id = $branch->id;
+        $transaction->product_id = $this->createProduct()->id;
+        $transaction->transacted_by_id = $user->id;
+        $transaction->accepted_by_id = $user->id;
+        $transaction->movement = 'out';
+        $transaction->details = 'requisition transaction';
+        $transaction->action = 'auto';
+        $transaction->from_request_id = $withTransactions->id;
+        $transaction->inventory_id = $this->seedInventory(
+            $this->createProduct(['name' => 'Txn Product']),
+            $branch,
+            $user,
+            5
+        )[1]->id;
+        $transaction->save();
+
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson('/api/v2/inventory/requisition?paginate=10')
+            ->assertOk();
+
+        $data = collect($response->json('data'))->keyBy('id');
+
+        $this->assertTrue($data[$withTransactions->id]['has_inventory_transactions']);
+        $this->assertFalse($data[$withoutTransactions->id]['has_inventory_transactions']);
     }
 }

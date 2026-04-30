@@ -13,26 +13,27 @@ class RequisitionServices
     public function paginateIndex(RequisitionIndexRequest $request): LengthAwarePaginator
     {
         return Requisition::query()
-            ->with(['requester.branch', 'acceptor.branch', 'location', 'declinedBy.branch'])
+            ->with(['requester.branch', 'acceptor.branch', 'location', 'declinedBy.branch', 'transactions', 'details'])
+            // ->withExists('transactions as has_inventory_transactions')
             ->when(
                 $request->filled('keyword'),
-                fn (Builder $query) => $this->applyKeywordFilter($query, (string) $request->input('keyword'))
+                fn(Builder $query) => $this->applyKeywordFilter($query, (string) $request->input('keyword'))
             )
             ->when(
                 $request->filled('type'),
-                fn (Builder $query) => $query->where('status', $request->input('type'))
+                fn(Builder $query) => $query->where('status', $request->input('type'))
             )
             ->when(
                 $request->filled('date_from'),
-                fn (Builder $query) => $query->whereDate('created_at', '>=', $request->input('date_from'))
+                fn(Builder $query) => $query->whereDate('created_at', '>=', $request->input('date_from'))
             )
             ->when(
                 $request->filled('date_to'),
-                fn (Builder $query) => $query->whereDate('created_at', '<=', $request->input('date_to'))
+                fn(Builder $query) => $query->whereDate('created_at', '<=', $request->input('date_to'))
             )
             ->when(
                 ($branchId = $this->resolveBranchId($request)) !== null,
-                fn (Builder $query) => $query->where('branch_id', $branchId)
+                fn(Builder $query) => $query->where('branch_id', $branchId)
             )
             ->latest()
             ->paginate($request->integer('paginate') ?: 15)
