@@ -72,4 +72,31 @@ class RequisitionApiTest extends TestCase
             ->assertJsonPath('data.0.id', $scoped->id)
             ->assertJsonPath('data.0.project_code', 'SCP-001');
     }
+
+    public function test_v2_requisition_list_shows_cross_branch_approved_requests_for_main_approval_roles(): void
+    {
+        $mainBranch = $this->createBranch('Main Branch');
+        $requesterBranch = $this->createBranch('Requester Branch');
+        $approver = $this->createUser($mainBranch, UserType::WAREHOUSE_MAN->value);
+        $requester = $this->createUser($requesterBranch, UserType::EMPLOYEE->value);
+
+        $approved = $this->createRequisition($requester, [
+            'project_name' => 'Approved Request',
+            'project_code' => 'APR-001',
+            'status' => 'approved',
+        ]);
+        $pending = $this->createRequisition($requester, [
+            'project_name' => 'Pending Request',
+            'project_code' => 'PND-001',
+            'status' => 'pending',
+        ]);
+
+        Sanctum::actingAs($approver);
+
+        $this->getJson('/api/v2/inventory/requisition?type=approved&paginate=10')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $approved->id)
+            ->assertJsonPath('data.0.project_code', 'APR-001');
+    }
 }

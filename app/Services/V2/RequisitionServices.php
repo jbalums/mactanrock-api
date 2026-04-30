@@ -2,6 +2,7 @@
 
 namespace App\Services\V2;
 
+use App\Enums\UserType;
 use App\Http\Requests\V2\RequisitionIndexRequest;
 use App\Models\Requisition;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -29,7 +30,10 @@ class RequisitionServices
                 $request->filled('date_to'),
                 fn (Builder $query) => $query->whereDate('created_at', '<=', $request->input('date_to'))
             )
-            ->where('branch_id', $this->resolveBranchId($request))
+            ->when(
+                ($branchId = $this->resolveBranchId($request)) !== null,
+                fn (Builder $query) => $query->where('branch_id', $branchId)
+            )
             ->latest()
             ->paginate($request->integer('paginate') ?: 15)
             ->appends($request->query());
@@ -49,8 +53,36 @@ class RequisitionServices
         });
     }
 
-    private function resolveBranchId(RequisitionIndexRequest $request): int
+    private function resolveBranchId(RequisitionIndexRequest $request): ?int
     {
-        return $request->integer('branch_id') ?: (int) $request->user()->branch_id;
+        if ($request->filled('branch_id')) {
+            return $request->integer('branch_id');
+        }
+
+        if ($this->canViewApprovedAcrossBranches($request)) {
+            return null;
+        }
+
+        return (int) $request->user()->branch_id;
+    }
+
+    private function canViewApprovedAcrossBranches(RequisitionIndexRequest $request): bool
+    {
+        $user = $request->user();
+
+        if ($request->input('type') !== 'approved') {
+            return false;
+        }
+
+        if ((int) $user->branch_id !== 1) {
+            return false;
+        }
+
+        return in_array($user->user_type, [
+            UserType::ADMIN->value,
+            UserType::WAREHOUSE_MAN->value,
+            UserType::AREA_MANAGER->value,
+            UserType::APPROVING_MANAGER->value,
+        ], true);
     }
 }
